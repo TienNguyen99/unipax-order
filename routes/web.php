@@ -28,6 +28,6 @@ Route::post('deliveries/import', [DeliveryImportController::class, 'import'])->n
 Route::get('/client/home', [HomeClientController::class, 'index']);
 Route::get('/api/production-orders', [HomeClientController::class, 'getData']);
 
-
+//Route for Excel Print
 Route::get('/excel', [ExcelPrintController::class, 'index'])->name('excel');
 Route::post('/print', [ExcelPrintController::class, 'print'])->name('excel.print');

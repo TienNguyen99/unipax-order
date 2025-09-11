@@ -17,8 +17,6 @@ class Delivery extends Model
         'ma_hang',
         'ps_code',
         'size',
-        'mau_vai',
-        'mau_logo',
         'ngay_gui_panel',
         'so_phieu',
         'sl_dat',
@@ -27,9 +25,9 @@ class Delivery extends Model
         'sl_giao_dat',
         'sl_giao_loi',
         'ghi_chu',
-        'mat',
-        'thang_chot',
-        'noi_giao'
+        'panel',
+        'loai',
+        'noi_giao',
     ];
 
     public function order()

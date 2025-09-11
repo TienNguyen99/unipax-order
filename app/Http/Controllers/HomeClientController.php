@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Delivery;
 use Illuminate\Http\Request;
 use App\Models\Order;
 
@@ -17,11 +18,11 @@ class HomeClientController extends Controller
     {
         return view('client.home');
     }
-    // API 
+    // API dữ liệu delivery
     public function getData()
     {
-        $data = Order::with('deliveries')
-            ->get();
+        $data = Delivery::all();
+
         return response()->json([
             'data' => $data
         ]);

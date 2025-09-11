@@ -43,7 +43,7 @@
 </head>
 
 <body>
-    <div class="container mt-4">
+    <div class="container-fluid mt-4">
         <h3 class="mb-4">📋 Theo dõi đơn sản xuất - Realtime</h3>
 
         <!-- 🔍 Bộ lọc -->
@@ -83,25 +83,22 @@
             <thead class="table-dark">
                 <tr>
                     <th>STT</th>
-                    <th>Mã hàng</th>
-                    <th>PS Sub ĐH</th>
-                    <th>Màu vải</th>
-                    <th>Màu in</th>
-                    <th>Panel</th>
                     <th>Ngày xuất</th>
-                    <th>Số phiếu</th>
+                    <th>Mã hàng</th>
+                    <th>P/S</th>
                     <th>Size</th>
-                    <th>Số lượng đặt hàng (pcs)</th>
-                    <th>Đơn vị tính</th>
+                    <th>Ngày gửi Panel</th>
+                    <th>Số phiếu</th>
+                    <th>Số lượng đơn hàng</th>
+                    <th>Số lượng thực nhận</th>
+                    <th>Ngày giao</th>
+
+                    <th>Đạt</th>
+                    <th>Lỗi</th>
                     <th>Ghi chú</th>
-                    <th>Mua</th>
-                    <th>Giá</th>
-                    <th>Tên hàng</th>
-                    <th>Mã lệnh</th>
-                    <th>Tổng tiền (VND)</th>
-                    <th>Hàng về</th>
-                    <th>Đã giao</th>
-                    <th>Còn lại</th>
+                    <th>Panel</th>
+                    <th>Loại</th>
+                    <th>Nơi giao</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -136,32 +133,30 @@
 
                         return [
                             index + 1,
+                            row.ngay_xuat || '',
                             row.ma_hang || '',
                             row.ps_code || '',
-                            row.mau_vai || '',
-                            row.mau_logo || '',
-                            row.panel || '',
-                            row.ngay_xuat ? new Date(row.ngay_xuat).toLocaleDateString('vi-VN') : '',
-                            row.po_number || '',
                             row.size || '',
+                            row.ngay_gui_panel || '',
+                            row.so_phieu || '',
                             row.sl_dat || 0,
-                            row.don_vi_tinh || '',
+                            row.sl_thuc_nhan || 0,
+                            row.ngay_giao || '',
+                            row.sl_giao_dat || 0,
+                            row.sl_giao_loi || 0,
                             row.ghi_chu || '',
-                            row.mua || '',
-                            Math.round(row.gia) || 0,
-                            row.ten_hang || '',
-                            row.ma_lenh || '',
-                            tongvnd,
-                            row.hang_ve || '',
-                            row.da_giao || '',
-                            row.con_lai || ''
+                            row.panel || '',
+                            row.loai || '',
+                            row.noi_giao || '',
+
+
                         ];
                     });
 
                     if (!dataTable) {
                         dataTable = $('#productionTable').DataTable({
                             data: rows,
-                            columns: Array(20).fill().map((_, i) => ({
+                            columns: Array(16).fill().map((_, i) => ({
                                 title: $('thead th').eq(i).text()
                             })),
                             pageLength: 25,

@@ -167,6 +167,18 @@
                                 </ul>
                             </div>
                         @endforeach
+                        <div class="grid-col">
+                            <div class="year-header">🌐 Link Online</div>
+                            <ul>
+                                <li>🌐 <a href="https://1drv.ms/x/c/780111bcbe29311c/ERLvdNC4tVJCgWblmzYCY_UBLeY-9B1rI2qOdEOXCMY7AQ?e=hlQm5q" target="_blank">2025 Từ 0 - 999</a></li>
+                                <li>🌐 <a href="https://1drv.ms/x/c/780111bcbe29311c/EbaocOYzzXxLncJAR5YUxhMBjAh3JxbHoBZtyxIrazoTYg?e=GjdP8K" target="_blank">2025 Từ 1000-1982</a></li>
+                                <li>🌐 <a
+                                        href="https://1drv.ms/x/c/780111bcbe29311c/EdrZO6-SkGBNq-aorfBftHgB1YhK_g97KsBob3_PD0dXUQ?e=0S0Fv4"
+                                        target="_blank">2024 Từ 2157 - 2999</a></li>
+                                <li>🌐 <a href="https://1drv.ms/x/c/780111bcbe29311c/EWY_a4S9JAVAkhSqRKME9DwBBgnRm7T1mWYYt7FRTcPKzw?e=8mumah" target="_blank">2024 Từ 3000 - 3964</a></li>
+                                <li>🌐 <a href="https://1drv.ms/x/c/780111bcbe29311c/ETX7wcjH6llNgwIEmBtDEW0BdKwULN0QXS3_bAaPkAxRPw?e=8Ty57s" target="_blank">2024 Từ 4000 - 5472</a></li>
+                            </ul>
+                        </div>
                     </div>
 
                     <button class="close-btn" onclick="document.getElementById('fileModal').style.display='none'">

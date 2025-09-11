@@ -20,13 +20,13 @@ class OrderImportController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv'
         ]);
-    // Tắt kiểm tra khóa ngoại
-    // Schema::disableForeignKeyConstraints();
-    // Order::truncate();
-    // Schema::enableForeignKeyConstraints();
+        // Tắt kiểm tra khóa ngoại
+        // Schema::disableForeignKeyConstraints();
+        // Order::truncate();
+        // Schema::enableForeignKeyConstraints();
 
-    Excel::import(new OrdersImport, $request->file('file'));
+        Excel::import(new OrdersImport, $request->file('file'));
 
-    return back()->with('success', 'Import dữ liệu thành công!');
+        return back()->with('success', 'Import dữ liệu thành công!');
     }
 }
