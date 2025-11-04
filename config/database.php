@@ -42,6 +42,13 @@ return [
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
+        'sqlite_unipax' => [
+    'driver' => 'sqlite',
+    'database' => database_path('unipax.sqlite'),
+    'prefix' => '',
+    'foreign_key_constraints' => true,
+],
+
 
         'mysql' => [
             'driver' => 'mysql',
