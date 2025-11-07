@@ -8,6 +8,7 @@ use App\Http\Controllers\ExcelPrintController;
 use App\Http\Controllers\PhieuNhapController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\PhieuUnipaxController;
+use App\Http\Controllers\NhapSXController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,15 +20,6 @@ use App\Http\Controllers\PhieuUnipaxController;
 |
 */
 
-Route::get('orders/import', [OrderImportController::class, 'showForm'])->name('orders.import.form');
-Route::post('orders/import', [OrderImportController::class, 'import'])->name('orders.import');
-//
-Route::get('deliveries/import', [DeliveryImportController::class, 'showForm'])->name('deliveries.import.form');
-Route::post('deliveries/import', [DeliveryImportController::class, 'import'])->name('deliveries.import');
-
-// Route for Home
-Route::get('/client/home', [HomeClientController::class, 'index']);
-Route::get('/api/production-orders', [HomeClientController::class, 'getData']);
 
 //Route for Excel Print
 Route::get('/excel', [ExcelPrintController::class, 'index'])->name('excel');
@@ -35,9 +27,9 @@ Route::post('/print', [ExcelPrintController::class, 'print'])->name('excel.print
 
 //
 
-Route::prefix('phieu-nhap')->group(function () {
-    Route::get('/', [PhieuUnipaxController::class, 'index'])->name('phieuunipax.index');
-    Route::post('/', [PhieuUnipaxController::class, 'store'])->name('phieuunipax.store');
-    Route::get('/view-all', [PhieuUnipaxController::class, 'viewAll'])->name('phieuunipax.viewAll');
-    Route::delete('/delete/{id}', [PhieuUnipaxController::class, 'delete'])->name('phieuunipax.delete');
-});
+Route::get('/nhap-sx', [NhapSXController::class, 'showForm'])->name('nhap-sx.form');
+Route::post('/nhap-sx', [NhapSXController::class, 'postNhapSX'])->name('nhap-sx.submit');
+Route::get('/nhap-sx/list', [NhapSXController::class, 'list'])->name('nhap-sx.list');
+// Route import Excel (AJAX)
+Route::post('/lenh-sx/import', [NhapSXController::class, 'importLenhSX'])->name('lenh-sx.import');
+

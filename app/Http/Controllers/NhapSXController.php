@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\NhapSXLog;
+use App\Models\LenhSanXuat;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\LenhSXImport;
+use Illuminate\Support\Facades\DB;
+use App\Exports\BaoCaoSXExport;
+
+
+class NhapSXController extends Controller
+{
+    // 🟢 Hiển thị form nhập SX
+    public function showForm()
+    {
+        $lenhSXs = LenhSanXuat::select('ma_lenh', 'description')
+            ->orderBy('ma_lenh')
+            ->get();
+
+        return view('client.congnhan', compact('lenhSXs'));
+    }
+
+    // 🟢 Ghi log nhập SX (AJAX)
+    public function postNhapSX(Request $request)
+    {
+        $validated = $request->validate([
+            'lenh_sx' => 'required|string|max:50',
+            'cong_doan' => 'required|string|max:10',
+            'so_luong_dat' => 'required|integer|min:0',
+            'so_luong_loi' => 'nullable|integer|min:0',
+            'dien_giai' => 'nullable|string|max:500',
+        ]);
+
+        $log = NhapSXLog::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đã lưu dữ liệu thành công!',
+            'data' => $log
+        ]);
+    }
+
+    // 🟢 Xem danh sách nhập SX
+    public function list()
+    {
+        $data = NhapSXLog::orderBy('id', 'desc')->take(50)->get();
+        return view('client.list', compact('data'));
+    }
+    public function exportBaoCao($ngay)
+{
+    return Excel::download(new BaoCaoSXExport($ngay), "BaoCaoSX_{$ngay}.xlsx");
+}
+
+
+    // 🟢 Import Excel (mỗi lần import xóa toàn bộ dữ liệu cũ)
+    public function importLenhSX(Request $request)
+    {
+        try {
+            if (!$request->hasFile('file')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⚠️ Không có file được tải lên.'
+                ]);
+            }
+
+            // ⚠️ Xóa toàn bộ dữ liệu cũ trước khi import
+            DB::table('lenh_sx')->truncate();
+
+            // Import dữ liệu mới
+            Excel::import(new LenhSXImport, $request->file('file'));
+
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Đã xóa dữ liệu cũ và import mới thành công!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '❌ Lỗi khi import: ' . $e->getMessage()
+            ]);
+        }
+    }
+}
