@@ -30,6 +30,8 @@ Route::post('/print', [ExcelPrintController::class, 'print'])->name('excel.print
 Route::get('/nhap-sx', [NhapSXController::class, 'showForm'])->name('nhap-sx.form');
 Route::post('/nhap-sx', [NhapSXController::class, 'postNhapSX'])->name('nhap-sx.submit');
 Route::get('/nhap-sx/list', [NhapSXController::class, 'list'])->name('nhap-sx.list');
+Route::get('/lenh-sx/search', [NhapSXController::class, 'searchLenhSX'])->name('lenh-sx.search');
 // Route import Excel (AJAX)
 Route::post('/lenh-sx/import', [NhapSXController::class, 'importLenhSX'])->name('lenh-sx.import');
-
+// Route xuất báo cáo PDF
+Route::get('/bao-cao-sx/pdf/{id}', [NhapSXController::class, 'exportBaoCaoPDF'])->name('bao-cao-sx.pdf');

@@ -28,4 +28,8 @@ class NhapSXLog extends Model
         'so_luong_loi',
         'dien_giai',
     ];
+    public function lenhSanXuat()
+    {
+        return $this->belongsTo(LenhSanXuat::class, 'lenh_sx', 'ma_lenh');
+    }
 }

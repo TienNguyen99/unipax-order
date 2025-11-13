@@ -2,56 +2,62 @@
 namespace App\Exports;
 
 use App\Models\NhapSXLog;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf;
 
-class BaoCaoSXExport implements WithEvents
+class BaoCaoSXExport
 {
     protected $ngay;
+    protected $id;
 
-    public function __construct($ngay)
+    public function __construct($ngay = null, $id = null)
     {
         $this->ngay = $ngay;
+        $this->id = $id;
     }
 
-    public function registerEvents(): array
+    // 🟢 Xuất PDF cho 1 bản ghi (dùng template bcsx.xls)
+    public function exportToPDF()
     {
-        return [
-            AfterSheet::class => function(AfterSheet $event) {
-                // Mở template Excel gốc
-                $templatePath = storage_path('app/templates/bcsx.xls');
-                $spreadsheet = IOFactory::load($templatePath);
-                $sheet = $spreadsheet->getActiveSheet();
+        $log = NhapSXLog::findOrFail($this->id);
 
-                // Lấy dữ liệu từ DB
-                $logs = NhapSXLog::whereDate('ngay_nhap', $this->ngay)->get();
+        // Nạp template Excel
+        $templatePath = storage_path('app/templates/bcsx.xls');
+        $spreadsheet = IOFactory::load($templatePath);
+        $sheet = $spreadsheet->getActiveSheet();
 
-                // Ghi thông tin chung
-                $sheet->setCellValue('B1', now()->format('d/m/Y')); // Ngày sản xuất
-                $sheet->setCellValue('B2', ''); // Tên nhân viên (có thể từ user đăng nhập)
-                $sheet->setCellValue('B3', ''); // Công việc
+        // Ghi dữ liệu vào mẫu
+        $sheet->setCellValue('B1', now()->format('d/m/Y'));
+        $sheet->setCellValue('B2', ''); // Tên nhân viên
+        $sheet->setCellValue('B3', ''); // Công việc
 
-                // Ghi dữ liệu sản xuất theo từng dòng
-                $row = 9;
-                foreach ($logs as $log) {
-                    $sheet->setCellValue("B5", $log->lenh_sx);
-                    $sheet->setCellValue("B3", $log->cong_doan);
-                    $sheet->setCellValue("B10", $log->so_luong_dat);
-                    $sheet->setCellValue("D10", $log->so_luong_loi);
-                    $sheet->setCellValue("B11", $log->dien_giai);
-                    // $row++;
-                }
+            $sheet->setCellValue("B5", $log->lenh_sx);
+            $sheet->setCellValue("B6", $log->lenhSanXuat->model_code ?? '');
+            $sheet->setCellValue("B7", $log->lenhSanXuat->color ?? '');
+            $sheet->setCellValue("F6", $log->lenhSanXuat->size ?? '');
+            $sheet->setCellValue("F10", $log->lenhSanXuat->unit ?? '');
 
-                // Ghi file ra tạm thời để download
-                $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-                $outputPath = storage_path("app/public/BaoCaoSX_{$this->ngay}.xlsx");
-                $writer->save($outputPath);
+            $sheet->setCellValue("B3", $log->cong_doan);
+            $sheet->setCellValue("B10", $log->so_luong_dat);
+            $sheet->setCellValue("D10", $log->so_luong_loi);
+            $sheet->setCellValue("B11", $log->dien_giai);
 
-                return $outputPath;
-            }
-        ];
+        // Xuất ra file PDF
+        $pdfPath = storage_path("app/public/BaoCaoSX_ID{$this->id}.pdf");
+        $writer = new Mpdf($spreadsheet);
+        $writer->save($pdfPath);
+
+        // Thêm auto print
+        $this->injectAutoPrintScript($pdfPath);
+
+        return $pdfPath;
+    }
+
+    // 🧠 Thêm script in tự động vào file PDF
+    protected function injectAutoPrintScript($pdfPath)
+    {
+        $pdfContent = file_get_contents($pdfPath);
+        $pdfContent .= "\n<script>window.print();</script>";
+        file_put_contents($pdfPath, $pdfContent);
     }
 }

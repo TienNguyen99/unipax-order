@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>🪶 In lệnh sản xuất - Pastel Neuron</title>
+    <title>In lệnh sản xuất</title>
 
     <!-- Font: Inter (hiện đại, dễ đọc) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -191,13 +191,13 @@
     <div class="container">
         @if (!empty($fileUrls) && count($fileUrls) > 0)
             <button type="button" onclick="document.getElementById('fileModal').style.display='block'">
-                📂 Lệnh sản xuất cũ
+                Lệnh sản xuất cũ
             </button>
 
             <div id="fileModal" class="modal" onclick="if(event.target.id==='fileModal'){this.style.display='none'}">
                 <div class="modal-content">
                     <h3 style="margin-bottom:20px; color:#3a7ca5; text-align:center;">
-                        🪶 Chọn để tải
+                        Chọn để tải
                     </h3>
 
                     @php
@@ -253,7 +253,7 @@
             </div>
         @endif
 
-        <h2>🪶 GHI SHEET IN</h2>
+        <h2>NHẬP TÊN SHEET CẦN IN</h2>
 
         @if (session('success'))
             <p style="color: #009688;">{{ session('success') }}</p>
@@ -266,7 +266,7 @@
         @endif
 
         @if (!empty($preview))
-            <h3 style="color:#3a7ca5;">📜 Hình đã in:</h3>
+            <h3 style="color:#3a7ca5;">Hình đã in:</h3>
             <iframe src="{{ asset($preview) }}" width="100%" height="500px"></iframe>
         @endif
 

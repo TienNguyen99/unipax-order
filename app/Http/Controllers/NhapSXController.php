@@ -10,7 +10,6 @@ use App\Imports\LenhSXImport;
 use Illuminate\Support\Facades\DB;
 use App\Exports\BaoCaoSXExport;
 
-
 class NhapSXController extends Controller
 {
     // 🟢 Hiển thị form nhập SX
@@ -42,20 +41,31 @@ class NhapSXController extends Controller
             'data' => $log
         ]);
     }
+        // 🟢 🔍 API Tìm kiếm mã lệnh (cho gợi ý trong form)
+    public function searchLenhSX(Request $request)
+    {
+        $q = trim($request->get('q', ''));
+        if ($q === '') {
+            return response()->json([]);
+        }
 
+        $data = LenhSanXuat::select('ma_lenh', 'description')
+            ->where('ma_lenh', 'like', "%{$q}%")
+            ->orWhere('description', 'like', "%{$q}%")
+            ->orderBy('ma_lenh')
+            ->take(20)
+            ->get();
+
+        return response()->json($data);
+    }
     // 🟢 Xem danh sách nhập SX
     public function list()
     {
         $data = NhapSXLog::orderBy('id', 'desc')->take(50)->get();
         return view('client.list', compact('data'));
     }
-    public function exportBaoCao($ngay)
-{
-    return Excel::download(new BaoCaoSXExport($ngay), "BaoCaoSX_{$ngay}.xlsx");
-}
 
-
-    // 🟢 Import Excel (mỗi lần import xóa toàn bộ dữ liệu cũ)
+    // 🟢 Import Excel (xóa toàn bộ dữ liệu cũ)
     public function importLenhSX(Request $request)
     {
         try {
@@ -66,10 +76,7 @@ class NhapSXController extends Controller
                 ]);
             }
 
-            // ⚠️ Xóa toàn bộ dữ liệu cũ trước khi import
             DB::table('lenh_sx')->truncate();
-
-            // Import dữ liệu mới
             Excel::import(new LenhSXImport, $request->file('file'));
 
             return response()->json([
@@ -82,5 +89,16 @@ class NhapSXController extends Controller
                 'message' => '❌ Lỗi khi import: ' . $e->getMessage()
             ]);
         }
+    }
+
+    // 🟢 Xuất báo cáo ra PDF cho bản ghi vừa nhập
+    public function exportBaoCaoPDF($id)
+    {
+        $exporter = new BaoCaoSXExport(null, $id);
+        $filePath = $exporter->exportToPDF();
+
+        return response()->file($filePath, [
+            'Content-Type' => 'application/pdf',
+        ]);
     }
 }
