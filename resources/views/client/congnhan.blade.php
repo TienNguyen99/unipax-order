@@ -117,7 +117,7 @@
 
   <!-- Tầng Trệt -->
   <div class="mt-3">
-    <h6 class="text-info text-start mb-2">🏭 Tầng Trệt</h6>
+    <h6 class="text-info text-start mb-2">Tầng Trệt</h6>
     <div class="d-grid gap-2">
       <button class="btn btn-outline-info btn-step congdoan" data-value="DỆT DÂY">DỆT DÂY</button>
       <button class="btn btn-outline-info btn-step congdoan" data-value="DỆT NHÃN">DỆT NHÃN</button>
@@ -128,7 +128,7 @@
 
   <!-- Tầng 1 -->
   <div class="mt-4">
-    <h6 class="text-info text-start mb-2">🏗️ Tầng 1</h6>
+    <h6 class="text-info text-start mb-2">Tầng 1</h6>
     <div class="d-grid gap-2">
       <button class="btn btn-outline-info btn-step congdoan" data-value="MAY">MAY</button>
       <button class="btn btn-outline-info btn-step congdoan" data-value="CẮT">CẮT</button>
@@ -139,7 +139,7 @@
 
   <!-- QC -->
   <div class="mt-4">
-    <h6 class="text-info text-start mb-2">🔍 QC</h6>
+    <h6 class="text-info text-start mb-2">QC</h6>
     <div class="d-grid gap-2">
       <button class="btn btn-outline-warning btn-step congdoan" data-value="KIỂM HÀNG">KIỂM HÀNG</button>
       <button class="btn btn-outline-warning btn-step congdoan" data-value="KIỂM ĐÓNG GÓI">KIỂM ĐÓNG GÓI</button>
