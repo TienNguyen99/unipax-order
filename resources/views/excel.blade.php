@@ -29,7 +29,9 @@
             top: 0;
             left: 0;
             z-index: 0;
-            background: radial-gradient(circle at top left, #e8faff 0%, #f9f9ff 100%);
+            
+            /* background: radial-gradient(circle at top left, #e8faff 0%, #f9f9ff 100%); */
+            background: linear-gradient(180deg, #cfd8e3, #aebbc9);
         }
 
         .container {
@@ -279,51 +281,50 @@
 
     <!-- Hiệu ứng nơron -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script>
-        particlesJS("particles-js", {
-            particles: {
-                number: {
-                    value: 100
-                },
-                color: {
-                    value: ["#7bc8f6", "#a3e3d1", "#d4bdf7"]
-                },
-                line_linked: {
-                    enable: true,
-                    distance: 140,
-                    color: "#b3e5fc",
-                    opacity: 0.3,
-                    width: 1
-                },
-                move: {
-                    enable: true,
-                    speed: 1.4
-                },
-                size: {
-                    value: 3
-                },
-                opacity: {
-                    value: 0.6
-                }
-            },
-            interactivity: {
-                events: {
-                    onhover: {
-                        enable: true,
-                        mode: "grab"
-                    }
-                },
-                modes: {
-                    grab: {
-                        distance: 160,
-                        line_linked: {
-                            opacity: 0.4
-                        }
-                    }
-                }
+<script>
+particlesJS("particles-js", {
+    particles: {
+        number: {
+            value: 260,  // ❄️ Tuyết dày hơn
+            density: { enable: true, value_area: 800 }
+        },
+        color: { value: "#ffffff" },
+        shape: {
+            type: "polygon",
+            polygon: {
+                nb_sides: 6  // ❄️ Bông tuyết 6 cạnh
             }
-        });
-    </script>
+        },
+        opacity: {
+            value: 0.9,
+            random: true
+        },
+        size: {
+            value: 5,
+            random: true
+        },
+        line_linked: { enable: false },
+
+        move: {
+            direction: "bottom",
+            speed: 0.8,   // ❄️ Rơi chậm – mềm
+            random: true,
+            straight: false,  // ❄️ Cho phép lắc trái/phải khi rơi
+            out_mode: "out",
+            bounce: false
+        }
+    },
+
+    interactivity: {
+        events: {
+            onhover: { enable: true, mode: "repulse" },
+            onclick: { enable: false}
+        }
+    },
+
+    retina_detect: true
+});
+</script>
 </body>
 
 </html>

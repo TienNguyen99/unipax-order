@@ -43,7 +43,7 @@ class BaoCaoSXExport
             $sheet->setCellValue("B11", $log->dien_giai);
 
         // Xuất ra file PDF
-        $pdfPath = storage_path("app/public/BaoCaoSX_ID{$this->id}.pdf");
+        $pdfPath = storage_path("app/public/BaoCaoSX_{$log->lenh_sx}_{$this->id}.pdf");
         $writer = new Mpdf($spreadsheet);
         $writer->save($pdfPath);
 
