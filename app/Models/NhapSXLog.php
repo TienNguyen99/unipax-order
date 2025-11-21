@@ -27,9 +27,14 @@ class NhapSXLog extends Model
         'so_luong_dat',
         'so_luong_loi',
         'dien_giai',
+        'nhan_vien_id'
     ];
     public function lenhSanXuat()
     {
         return $this->belongsTo(LenhSanXuat::class, 'lenh_sx', 'ma_lenh');
+    }
+    public function nhanVien()
+    {
+        return $this->belongsTo(NhanVien::class, 'nhan_vien_id','ma_nv');
     }
 }

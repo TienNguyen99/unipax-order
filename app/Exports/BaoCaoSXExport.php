@@ -28,7 +28,7 @@ class BaoCaoSXExport
 
         // Ghi dữ liệu vào mẫu
         $sheet->setCellValue('B1', now()->format('d/m/Y'));
-        $sheet->setCellValue('B2', ''); // Tên nhân viên
+        $sheet->setCellValue('B2', $log->nhan_vien_id); // Tên nhân viên
         $sheet->setCellValue('B3', ''); // Công việc
 
             $sheet->setCellValue("B5", $log->lenh_sx);

@@ -28,6 +28,7 @@ class NhapSXController extends Controller
         $validated = $request->validate([
             'lenh_sx' => 'required|string|max:50',
             'cong_doan' => 'required|string|max:10',
+            'nhan_vien_id' => 'required|string|max:20',
             'so_luong_dat' => 'required|integer|min:0',
             'so_luong_loi' => 'nullable|integer|min:0',
             'dien_giai' => 'nullable|string|max:500',
