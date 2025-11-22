@@ -8,7 +8,8 @@ return new class extends Migration {
     {
         Schema::create('nhap_sx_logs', function (Blueprint $table) {
             $table->id();
-            $table->date('ngay_nhap')->nullable();
+            $table->datetime('ngay_nhap')->nullable();
+            $table->boolean('da_in')->default(false)->nullable();
             $table->string('nhan_vien_id')->nullable();
             $table->string('lenh_sx')->nullable();
             $table->string('cong_doan')->nullable();
@@ -21,8 +22,8 @@ return new class extends Migration {
             $table->integer('so_dau')->nullable();
             $table->integer('so_khuon')->nullable();
             $table->string('khuon_sx')->nullable();
-            $table->integer('so_luong_dat');
-            $table->integer('so_luong_loi')->nullable();
+            $table->float('so_luong_dat')->nullable();
+            $table->float('so_luong_loi')->nullable();
             $table->text('dien_giai')->nullable();
             $table->timestamps();
         });

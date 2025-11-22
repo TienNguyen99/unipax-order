@@ -183,8 +183,8 @@
     <!-- STEP 3 -->
     <div id="step3" class="step">
       <h5>3️⃣ Nhập Số Lượng</h5>
-      <input type="text" id="nhanvienId" placeholder="Mã nhân viên" class="form-control form-control-lg mb-2">
-      <input type="number" id="soLuongDat" placeholder="Số lượng đạt" class="form-control form-control-lg mb-2">
+      <input type="text" id="nhanvienId" placeholder="Mã nhân viên" class="form-control form-control-lg mb-2"required>
+      <input type="number" id="soLuongDat" placeholder="Số lượng đạt" class="form-control form-control-lg mb-2" required>
       <input type="number" id="soLuongLoi" placeholder="Số lượng lỗi" class="form-control form-control-lg mb-2">
       <input type="text" id="dienGiai" placeholder="Diễn giải (nếu có)" class="form-control form-control-lg mb-3">
 
@@ -196,12 +196,12 @@
 
     <!-- STEP 4 -->
     <div id="step4" class="step">
-      <h5>✅ Xác Nhận Dữ Liệu</h5>
+      <h5>Xác Nhận Dữ Liệu</h5>
       <div id="reviewBox" class="border p-3 mb-3 rounded text-start"></div>
       <div id="alertBox" class="mb-2"></div>
       <div class="d-flex justify-content-between">
         <button class="btn btn-secondary" id="back3">↩ Sửa</button>
-        <button class="btn btn-primary" id="submitBtn">📤 Lưu</button>
+        <button class="btn btn-primary" id="submitBtn">Lưu</button>
       </div>
     </div>
 
@@ -366,31 +366,20 @@ document.getElementById('importForm').addEventListener('submit',async function(e
     setTimeout(()=>location.reload(),1000);
   } else result.innerHTML=`<div class='alert alert-danger'>${data.message}</div>`;
 });
+@if (!empty($ma_lenh_url))
+    nhapData.lenh_sx = "{{ $ma_lenh_url }}";
 
+    overlay.style.display = "flex";
+    requestAnimationFrame(() => overlay.classList.add("show"));
 
-/* ==============================================================
-   🆕 TỰ NHẬN MÃ LỆNH TỪ URL & NHẢY THẲNG STEP 2
-   ============================================================== */
-(function(){
-    const parts = window.location.pathname.split("/");
-    const last = parts[parts.length - 1];
+    // Nhảy thẳng Step 2
+    showStep("step2");
 
-    // Nếu URL dạng /nhap-sx/M-4050
-    if(last && last !== "" && last !== "nhap-sx"){
-        nhapData.lenh_sx = last;
+    // Nếu muốn hiển thị vào ô tìm kiếm
+    document.getElementById('searchLenh').value = "{{ $ma_lenh_url }}";
+@endif
 
-        // mở overlay và nhảy step 2
-        overlay.style.display = "flex";
-        requestAnimationFrame(()=>overlay.classList.add("show"));
-        
-        showStep("step2");
-
-        // nếu muốn hiển thị lên ô tìm kiếm
-        document.getElementById("searchLenh").value = last;
-    }
-})();
 </script>
-
 
 <!-- PARTICLES -->
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>

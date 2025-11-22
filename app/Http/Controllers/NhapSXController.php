@@ -9,28 +9,32 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\LenhSXImport;
 use Illuminate\Support\Facades\DB;
 use App\Exports\BaoCaoSXExport;
+use Carbon\Carbon;
 
 class NhapSXController extends Controller
 {
-    // 🟢 Hiển thị form nhập SX
-    public function showForm()
+    // Hiển thị form nhập SX
+    public function showForm(Request $request, $ma_lenh = null)
     {
         $lenhSXs = LenhSanXuat::select('ma_lenh', 'description')
             ->orderBy('ma_lenh')
             ->get();
 
-        return view('client.congnhan', compact('lenhSXs'));
+        return view('client.congnhan', [
+            'lenhSXs' => $lenhSXs,
+            'ma_lenh_url' => $ma_lenh,
+        ]);
     }
 
-    // 🟢 Ghi log nhập SX (AJAX)
+    // Ghi log nhập SX (AJAX)
     public function postNhapSX(Request $request)
     {
         $validated = $request->validate([
             'lenh_sx' => 'required|string|max:50',
             'cong_doan' => 'required|string|max:10',
-            'nhan_vien_id' => 'required|string|max:20',
-            'so_luong_dat' => 'required|integer|min:0',
-            'so_luong_loi' => 'nullable|integer|min:0',
+            'nhan_vien_id' => 'nullable|string|max:20',
+            'so_luong_dat' => 'nullable|string|max:20',
+            'so_luong_loi' => 'nullable|string|max:20',
             'dien_giai' => 'nullable|string|max:500',
         ]);
 
@@ -42,13 +46,12 @@ class NhapSXController extends Controller
             'data' => $log
         ]);
     }
-        // 🟢 🔍 API Tìm kiếm mã lệnh (cho gợi ý trong form)
+
+    // API tìm kiếm mã lệnh
     public function searchLenhSX(Request $request)
     {
         $q = trim($request->get('q', ''));
-        if ($q === '') {
-            return response()->json([]);
-        }
+        if ($q === '') return response()->json([]);
 
         $data = LenhSanXuat::select('ma_lenh', 'description')
             ->where('ma_lenh', 'like', "%{$q}%")
@@ -59,14 +62,55 @@ class NhapSXController extends Controller
 
         return response()->json($data);
     }
-    // 🟢 Xem danh sách nhập SX
+
+    // Hiển thị view danh sách (không cần $data)
     public function list()
     {
-        $data = NhapSXLog::orderBy('id', 'desc')->take(50)->get();
-        return view('client.list', compact('data'));
+        return view('client.list');
     }
 
-    // 🟢 Import Excel (xóa toàn bộ dữ liệu cũ)
+    // API trả dữ liệu JSON
+    public function apiLatest()
+    {
+        $data = NhapSXLog::orderBy('id', 'asc')->take(50)->get();
+        return response()->json($data);
+    }
+
+    // In lệnh SX (check đã in hôm nay)
+    public function checkAndPrint($id)
+{
+    $log = NhapSXLog::findOrFail($id);
+    $today = Carbon::today()->toDateString();
+
+    $alreadyPrinted = NhapSXLog::where('lenh_sx', $log->lenh_sx)
+        ->whereDate('ngay_nhap', $today)
+        ->where('da_in', true)
+        ->exists();
+
+    $forcePrint = request()->get('force', false);
+
+    if ($alreadyPrinted && !$forcePrint) {
+        return response()->json([
+            'success' => false,
+            'confirm' => true,
+            'message' => '⚠️ Lệnh SX này đã được in hôm nay! Bạn có muốn in lại không?'
+        ]);
+    }
+
+    // ✅ Cập nhật ngay_nhap và da_in **trước khi export**
+    $log->da_in = true;
+    $log->ngay_nhap = now();
+    $log->save();
+
+    return response()->json([
+        'success' => true,
+        'message' => '✅ In thành công!',
+        'pdf_url' => route('bao-cao-sx.pdf', ['id' => $id])
+    ]);
+}
+
+
+    // Import Excel
     public function importLenhSX(Request $request)
     {
         try {
@@ -92,7 +136,7 @@ class NhapSXController extends Controller
         }
     }
 
-    // 🟢 Xuất báo cáo ra PDF cho bản ghi vừa nhập
+    // Xuất báo cáo PDF
     public function exportBaoCaoPDF($id)
     {
         $exporter = new BaoCaoSXExport(null, $id);
