@@ -34,9 +34,17 @@
         }
 
         @keyframes pastelMove {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
         }
 
         /* Làm bảng nhìn nổi và dịu hơn */
@@ -45,11 +53,30 @@
             backdrop-filter: blur(6px);
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         table.dataTable tbody tr {
-            background-color: rgba(255,255,255,0.6) !important;
+            background-color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        /* Style cho ô in nhanh */
+        .quick-print-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .quick-print-input {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        #printStatus {
+            min-height: 24px;
+            font-weight: 500;
         }
     </style>
 
@@ -62,6 +89,22 @@
 
     <div class="container mt-4">
         <h3>BẢNG PHIẾU SẢN XUẤT CÔNG NHÂN</h3>
+
+        <!-- Ô nhập ID in nhanh -->
+        <div class="quick-print-box">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <label for="quickPrintId" class="form-label mb-0"><strong>In nhanh theo ID:</strong></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" class="form-control quick-print-input" id="quickPrintId"
+                        placeholder="Nhập ID và nhấn Enter..." autofocus>
+                </div>
+                <div class="col-md-5">
+                    <span id="printStatus"></span>
+                </div>
+            </div>
+        </div>
 
         <table class="table table-bordered table-sm mt-3" id="data-table">
             <thead class="table-secondary">
@@ -88,11 +131,27 @@
     <script>
         particlesJS("particles-js", {
             particles: {
-                number: { value: 60, density: { enable: true, value_area: 800 } },
-                color: { value: ["#ffb3ba", "#baffc9", "#bae1ff", "#ffffba"] },
-                shape: { type: "circle" },
-                opacity: { value: 0.6, random: true },
-                size: { value: 6, random: true },
+                number: {
+                    value: 60,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: ["#ffb3ba", "#baffc9", "#bae1ff", "#ffffba"]
+                },
+                shape: {
+                    type: "circle"
+                },
+                opacity: {
+                    value: 0.6,
+                    random: true
+                },
+                size: {
+                    value: 6,
+                    random: true
+                },
                 line_linked: {
                     enable: true,
                     distance: 120,
@@ -111,8 +170,14 @@
             interactivity: {
                 detect_on: "canvas",
                 events: {
-                    onhover: { enable: true, mode: "grab" },
-                    onclick: { enable: true, mode: "repulse" }
+                    onhover: {
+                        enable: true,
+                        mode: "grab"
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: "repulse"
+                    }
                 }
             },
             retina_detect: true
@@ -130,8 +195,8 @@
                 const data = await response.json();
 
                 const rows = data.map(row => {
-                    const ngayNhapFull = row.created_at
-                        ? new Date(row.created_at).toLocaleString('vi-VN', {
+                    const ngayNhapFull = row.created_at ?
+                        new Date(row.created_at).toLocaleString('vi-VN', {
                             timeZone: 'Asia/Ho_Chi_Minh',
                             day: '2-digit',
                             month: '2-digit',
@@ -140,24 +205,25 @@
                             minute: '2-digit',
                             second: '2-digit',
                             hour12: false
-                        })
-                        : "";
+                        }) :
+                        "";
 
-                    const groupDate = row.created_at
-                        ? new Date(row.created_at).toLocaleString('vi-VN', {
+                    const groupDate = row.created_at ?
+                        new Date(row.created_at).toLocaleString('vi-VN', {
                             timeZone: 'Asia/Ho_Chi_Minh',
                             day: '2-digit',
                             month: '2-digit',
                             year: 'numeric',
                             hour12: false
-                        })
-                        : "";
+                        }) :
+                        "";
 
-                    const inButton = `<button class="btn btn-sm btn-primary" onclick="printSX(${row.id})">In</button>`;
+                    const inButton =
+                        `<button class="btn btn-sm btn-primary" onclick="printSX(${row.id})">In</button>`;
 
-                    const daInHtml = row.da_in == 1
-                        ? '<span style="color:green;font-weight:bold;">&#10004;</span>'
-                        : '<span style="color:red;font-weight:bold;">&#10006;</span>';
+                    const daInHtml = row.da_in == 1 ?
+                        '<span style="color:green;font-weight:bold;">&#10004;</span>' :
+                        '<span style="color:red;font-weight:bold;">&#10006;</span>';
 
                     return [
                         row.id,
@@ -188,51 +254,102 @@
         function initDataTable(rows) {
             dataTable = $("#data-table").DataTable({
                 data: rows,
-                columnDefs: [
-                    { targets: 10, visible: false }
-                ],
+                columnDefs: [{
+                    targets: 10,
+                    visible: false
+                }],
                 rowGroup: {
                     dataSrc: 10
                 },
-                order: [[10, "desc"]],
+                order: [
+                    [10, "desc"]
+                ],
                 pageLength: 50
             });
         }
 
         async function printSX(id, force = false) {
-    try {
-        const response = await fetch(`/nhap-sx/${id}/print?force=${force}`, {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json'
+            try {
+                const response = await fetch(`/nhap-sx/${id}/print?force=${force}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.confirm) {
+                    if (confirm(result.message)) printSX(id, true);
+                    return;
+                }
+
+                // Thành công → in trực tiếp PDF
+                if (result.success) {
+                    if (result.pdf_url) {
+                        printPDFDirectly(result.pdf_url);
+                    }
+                } else {
+                    // Chỉ báo lỗi nếu có
+                    alert(result.message ?? "Không thể in phiếu");
+                }
+
+            } catch (err) {
+                alert("Lỗi khi in!");
+            }
+        }
+
+        // Hàm in trực tiếp PDF
+        function printPDFDirectly(pdfUrl) {
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = pdfUrl;
+            document.body.appendChild(iframe);
+
+            iframe.onload = function() {
+                try {
+                    iframe.contentWindow.print();
+                } catch (e) {
+                    console.error('Không thể in tự động:', e);
+                    // Fallback: mở tab mới nếu in tự động bị chặn
+                    window.open(pdfUrl, '_blank');
+                }
+            };
+        }
+
+        // ✅ Xử lý in nhanh từ ô nhập ID
+        document.getElementById('quickPrintId').addEventListener('keypress', async function(e) {
+            if (e.key === 'Enter') {
+                const id = this.value.trim();
+                const statusEl = document.getElementById('printStatus');
+
+                if (!id) {
+                    statusEl.innerHTML = '<span style="color:orange;">⚠️ Vui lòng nhập ID</span>';
+                    setTimeout(() => statusEl.innerHTML = '', 2000);
+                    return;
+                }
+
+                statusEl.innerHTML = '<span style="color:blue;">⏳ Đang in...</span>';
+
+                try {
+                    await printSX(parseInt(id));
+                    statusEl.innerHTML = '<span style="color:green;">✅ Đã gửi lệnh in!</span>';
+                    this.value = ''; // Xóa ô input
+                    this.focus(); // Focus lại để nhập tiếp
+
+                    setTimeout(() => statusEl.innerHTML = '', 3000);
+                } catch (err) {
+                    statusEl.innerHTML = '<span style="color:red;">❌ Lỗi khi in</span>';
+                    setTimeout(() => statusEl.innerHTML = '', 3000);
+                }
             }
         });
-
-        const result = await response.json();
-
-        if (result.confirm) {
-            if (confirm(result.message)) printSX(id, true);
-            return;
-        }
-
-        // Thành công → mở PDF, KHÔNG báo message
-        if (result.success) {
-            if (result.pdf_url) window.open(result.pdf_url, "_blank");
-        } else {
-            // Chỉ báo lỗi nếu có
-            alert(result.message ?? "Không thể in phiếu");
-        }
-
-    } catch (err) {
-        alert("Lỗi khi in!");
-    }
-}
-
 
         fetchLatestData();
         setInterval(fetchLatestData, 10000);
     </script>
 
 </body>
+
 </html>
