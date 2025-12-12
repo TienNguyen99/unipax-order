@@ -27,7 +27,7 @@ class BaoCaoSXExport
         $sheet = $spreadsheet->getActiveSheet();
 
         // Ghi dữ liệu vào mẫu
-        $sheet->setCellValue('B1', now()->format('d/m/Y'));
+        $sheet->setCellValue('B1', $log->created_at->format('d/m/Y'));
         $sheet->setCellValue('B2', $log->nhan_vien_id); // Tên nhân viên
         $sheet->setCellValue('B3', ''); // Công việc
 
@@ -41,6 +41,12 @@ class BaoCaoSXExport
             $sheet->setCellValue("B10", $log->so_luong_dat);
             $sheet->setCellValue("D10", $log->so_luong_loi);
             $sheet->setCellValue("B11", $log->dien_giai);
+            $sheet->setCellValue("F7", $log->may_sx);
+            $sheet->setCellValue("B9", $log->so_pick);
+            $sheet->setCellValue("F9", $log->so_cuon);
+            $sheet->setCellValue("D9", $log->so_dong);
+            $sheet->setCellValue("B8", $log->so_ban);
+            $sheet->setCellValue("F8", $log->khuon_sx);
 
         // Xuất ra file PDF
         $pdfPath = storage_path("app/public/BaoCaoSX_{$log->lenh_sx}_{$this->id}.pdf");

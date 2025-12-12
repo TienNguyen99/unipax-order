@@ -1,319 +1,441 @@
 <!doctype html>
 <html lang="vi">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>PHIẾU SẢN XUẤT CÔNG NHÂN</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://unpkg.com/html5-qrcode"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>PHIẾU SẢN XUẤT CÔNG NHÂN</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
-  <style>
-    body {
-      margin:0;
-      font-family: Inter, system-ui, Arial;
-      background: #071028;
-      color:#fff;
-      text-align:center;
-      min-height:100vh;
-    }
+    <style>
+        body {
+            margin: 0;
+            font-family: Inter, system-ui, Arial;
+            background: #071028;
+            color: #fff;
+            text-align: center;
+            min-height: 100vh;
+        }
 
-    #particles-js {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      background: #071028;
-    }
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: #071028;
+        }
 
-    .touch-btn {
-      margin:20px auto;
-      padding:60px;
-      width:90%;
-      max-width:400px;
-      font-size:2rem;
-      font-weight:700;
-      border:none;
-      border-radius:24px;
-      background:linear-gradient(135deg,#22c55e,#16a34a);
-      color:#042916;
-      box-shadow:0 6px 20px rgba(0,0,0,.4);
-      transition:transform .2s ease;
-    }
-    .touch-btn:active { transform:scale(.95); }
+        .touch-btn {
+            margin: 20px auto;
+            padding: 60px;
+            width: 90%;
+            max-width: 400px;
+            font-size: 2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #042916;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, .4);
+            transition: transform .2s ease;
+        }
 
-    .overlay{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,.85);
-      z-index:100;
-      overflow-y:auto;
-      padding:20px;
-      opacity:0;
-      transition:opacity .3s ease;
-    }
-    .overlay.show{ opacity:1; }
+        .touch-btn:active {
+            transform: scale(.95);
+        }
 
-    .form-box{
-      background:#0b1326;
-      border-radius:16px;
-      padding:20px;
-      width:95%;
-      max-width:480px;
-      text-align:center;
-      box-shadow:0 0 15px rgba(0,0,0,.5);
-    }
+        .overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, .85);
+            z-index: 100;
+            overflow-y: auto;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity .3s ease;
+        }
 
-    .close-x{
-      position:absolute;
-      top:14px;
-      right:14px;
-      color:#ccc;
-      background:none;
-      border:none;
-      font-weight:bold;
-      font-size:1.3rem;
-    }
+        .overlay.show {
+            opacity: 1;
+        }
 
-    .step { display:none; }
-    .step.active { display:block; }
+        .form-box {
+            background: #0b1326;
+            border-radius: 16px;
+            padding: 20px;
+            width: 95%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 0, 0, .5);
+        }
 
-    .btn-step{
-      font-size:1.3rem;
-      font-weight:600;
-      padding:16px;
-      border-radius:14px;
-    }
+        .close-x {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            color: #ccc;
+            background: none;
+            border: none;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
 
-    .suggest-box{
-      max-height:300px;
-      overflow-y:auto;
-      background:#0f1a34;
-      border-radius:10px;
-      margin-top:8px;
-      text-align:left;
-    }
-    .suggest-item{
-      padding:10px 14px;
-      border-bottom:1px solid rgba(255,255,255,.1);
-      cursor:pointer;
-    }
-    .suggest-item:hover{
-      background:#1b2b55;
-    }
-  </style>
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        /* ============= MINI CARD CHO STEP 2 ============= */
+        .step-card {
+            padding: 16px;
+            background: #0f1a34;
+            border-radius: 14px;
+            text-align: center;
+            font-size: 1.05rem;
+            font-weight: 600;
+            border: 1px solid #203460;
+            color: #d4e8ff;
+            transition: 0.2s ease;
+        }
+
+        .step-card:hover {
+            background: #16244a;
+            cursor: pointer;
+        }
+
+        .step-card:active {
+            transform: scale(0.95);
+        }
+
+        /* Gợi ý tìm kiếm */
+        .suggest-box {
+            max-height: 300px;
+            overflow-y: auto;
+            background: #0f1a34;
+            border-radius: 10px;
+            margin-top: 8px;
+            text-align: left;
+        }
+
+        .suggest-item {
+            padding: 10px 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, .1);
+            cursor: pointer;
+        }
+
+        .suggest-item:hover {
+            background: #1b2b55;
+        }
+    </style>
+
 </head>
+
 <body>
 
-<!-- Background -->
-<div id="particles-js"></div>
+    <!-- Background -->
+    <div id="particles-js"></div>
 
-<!-- Import -->
-<div class="container mt-3">
-  <h5>Import Lệnh Sản Xuất</h5>
-  <form id="importForm" enctype="multipart/form-data">
-    <input type="file" id="fileInput" name="file" accept=".xlsx,.xls" class="form-control mb-2" required>
-    <button type="submit" class="btn btn-primary btn-sm w-100">Import Excel</button>
-  </form>
-  <div id="importResult" class="mt-2"></div>
-</div>
-
-<button id="touchBtn" class="touch-btn">NHẬP SẢN XUẤT</button>
-
-<!-- OVERLAY -->
-<div id="overlay" class="overlay">
-  <div class="form-box position-relative">
-    <button class="close-x" id="closeBtn">✕</button>
-
-    <!-- STEP 1 -->
-    <div id="step1" class="step active">
-      <h5>1️⃣ Tìm Mã Lệnh Sản Xuất</h5>
-
-      <input type="text" id="searchLenh" placeholder="Nhập vài ký tự mã lệnh..." class="form-control form-control-lg mt-3">
-      <div id="suggestBox" class="suggest-box mt-2"></div>
-
-      <!-- QR Scanner Button -->
-      <button class="btn btn-warning w-100 mt-3" id="scanQRBtn">📷 Quét QR</button>
-
-      <!-- QR Reader Area -->
-      <div id="qrReader" style="width:100%; display:none;" class="mt-3"></div>
-      <button class="btn btn-secondary w-100 mt-2" id="stopScanBtn" style="display:none;">🛑 Dừng quét</button>
+    <!-- Import -->
+    <div class="container mt-3">
+        <h5>Import Lệnh Sản Xuất</h5>
+        <form id="importForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" name="file" accept=".xlsx,.xls" class="form-control mb-2" required>
+            <button type="submit" class="btn btn-primary btn-sm w-100">Import Excel</button>
+        </form>
+        <div id="importResult" class="mt-2"></div>
     </div>
 
-    <!-- STEP 2 -->
-    <div id="step2" class="step">
-      <h5>2️⃣ Chọn Công Đoạn</h5>
+    <button id="touchBtn" class="touch-btn">NHẬP SẢN XUẤT</button>
 
-      <div class="mt-3">
-        <h6 class="text-info text-start mb-2">Tầng Trệt</h6>
-        <div class="d-grid gap-2">
-          <button class="btn btn-outline-info btn-step congdoan" data-value="DỆT DÂY">DỆT DÂY</button>
-          <button class="btn btn-outline-info btn-step congdoan" data-value="DỆT NHÃN">DỆT NHÃN</button>
-                    <button class="btn btn-outline-info btn-step congdoan" data-value="QUẤN CUỘN">QUẤN CUỘN</button>
+    <!-- OVERLAY -->
+    <div id="overlay" class="overlay">
+        <div class="form-box position-relative">
+            <button class="close-x" id="closeBtn">✕</button>
 
+            <!-- STEP 1 -->
+            <div id="step1" class="step active">
+                <h5>1️⃣ Tìm Mã Lệnh Sản Xuất</h5>
+
+                <input type="text" id="searchLenh" placeholder="Nhập vài ký tự mã lệnh..."
+                    class="form-control form-control-lg mt-3">
+                <div id="suggestBox" class="suggest-box mt-2"></div>
+
+                <!-- QR Scanner Button -->
+                <button class="btn btn-warning w-100 mt-3" id="scanQRBtn">📷 Quét QR</button>
+
+                <!-- QR Reader Area -->
+                <div id="qrReader" style="width:100%; display:none;" class="mt-3"></div>
+                <button class="btn btn-secondary w-100 mt-2" id="stopScanBtn" style="display:none;">🛑 Dừng
+                    quét</button>
+            </div>
+
+            <!-- STEP 2 (Mini card dạng 2 cột) -->
+            <div id="step2" class="step">
+                <h5>CHỌN CÔNG VIỆC</h5>
+
+                <div class="mt-3">
+                    <h6 class="text-info text-start mb-2">Tầng Trệt</h6>
+                    < class="row g-2">
+                        <div class="col-6">
+                            <div class="step-card congdoan" data-value="DỆT DÂY">DỆT DÂY</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="step-card congdoan" data-value="DỆT NHÃN">DỆT NHÃN</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="step-card congdoan" data-value="QUẤN CUỘN">QUẤN CUỘN</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="step-card congdoan" data-value="THUN BẢN">THUN BẢN</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="step-card congdoan" data-value="BẾ TPU">BẾ TPU</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="step-card congdoan" data-value="QUAY ĐẦU">QUAY ĐẦU</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="step-card congdoan" data-value="CÔNG VIỆC KHÁC">CÔNG VIỆC KHÁC ( NHẬP THÊM VÀO
+                                GHI CHÚ )</div>
+                        </div>
+
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h6 class="text-info text-start mb-2">Tầng 1</h6>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="step-card congdoan" data-value="IN LỤA">IN LỤA</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="step-card congdoan" data-value="IN TRỤC">IN TRỤC</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="step-card congdoan" data-value="ĐÚC">ĐÚC</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="step-card congdoan" data-value="CẮT">CẮT</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="step-card congdoan" data-value="ÉP">ÉP</div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h6 class="text-info text-start mb-2">QC</h6>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="step-card congdoan" data-value="KIỂM HÀNG">KIỂM HÀNG</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="step-card congdoan" data-value="ĐÓNG GÓI">ĐÓNG GÓI</div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-secondary mt-4 w-100" id="back1">↩ Quay lại</button>
         </div>
-      </div>
 
-      <div class="mt-4">
-        <h6 class="text-info text-start mb-2">Tầng 1</h6>
-        <div class="d-grid gap-2">
-                    <button class="btn btn-outline-info btn-step congdoan" data-value="IN">IN</button>
-          <button class="btn btn-outline-info btn-step congdoan" data-value="ĐÚC">ĐÚC</button>
-          <button class="btn btn-outline-info btn-step congdoan" data-value="CẮT">CẮT</button>
+        <!-- STEP 3 -->
+        <div id="step3" class="step">
+            <h5>3️⃣ Nhập Số Lượng</h5>
+            <input type="text" id="nhanvienId" placeholder="Mã (tên) công nhân"
+                class="form-control form-control-lg mb-2"required>
+            <input type="number" id="soLuongDat" placeholder="Số lượng đạt"
+                class="form-control form-control-lg mb-2" required>
+            <input type="number" id="soLuongLoi" placeholder="Số lượng lỗi"
+                class="form-control form-control-lg mb-2">
+            <input type="text" id="dienGiai" placeholder="Ghi chú ( nếu có )"
+                class="form-control form-control-lg mb-3">
+            {{-- Đoạn này collapse ra --}}
+            <!-- BUTTON COLLAPSE -->
+            <button id="toggleExtra" class="btn btn-outline-info w-100 mb-3">
+                ➕ Thêm thông tin (Máy / Pick / Cuộn...)
+            </button>
 
+            <!-- EXTRA FIELDS COLLAPSE -->
+            <div id="extraFields" style="display:none;">
 
+                <input type="text" id="maySx" placeholder="Máy sản xuất"
+                    class="form-control form-control-lg mb-3">
+                <input type="text" id="soPick" placeholder="Số pick"
+                    class="form-control form-control-lg mb-3">
+                <input type="text" id="soCuon" placeholder="Số cuộn"
+                    class="form-control form-control-lg mb-3">
+                <input type="text" id="soDong" placeholder="Số dòng"
+                    class="form-control form-control-lg mb-3">
+                <input type="text" id="soBan" placeholder="Số bản" class="form-control form-control-lg mb-3">
+                <input type="text" id="soDau" placeholder="Số đầu" class="form-control form-control-lg mb-3">
+                <input type="text" id="soKhuon" placeholder="Số khuôn"
+                    class="form-control form-control-lg mb-3">
+                <input type="text" id="khuonSx" placeholder="Khuôn sản xuất"
+                    class="form-control form-control-lg mb-3">
+
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-secondary" id="back2">↩ Quay lại</button>
+                <button class="btn btn-success" id="confirmBtn">✅ Tiếp tục</button>
+            </div>
         </div>
-      </div>
 
-      <div class="mt-4">
-        <h6 class="text-info text-start mb-2">QC</h6>
-        <div class="d-grid gap-2">
-          <button class="btn btn-outline-warning btn-step congdoan" data-value="KIỂM HÀNG">KIỂM HÀNG</button>
-          <button class="btn btn-outline-info btn-step congdoan" data-value="ĐÓNG GÓI">ĐÓNG GÓI</button>
+        <!-- STEP 4 -->
+        <div id="step4" class="step">
+            <h5>Xác Nhận Dữ Liệu</h5>
+            <div id="reviewBox" class="border p-3 mb-3 rounded text-start"></div>
+            <div id="alertBox" class="mb-2"></div>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-secondary" id="back3">↩ Sửa</button>
+                <button class="btn btn-primary" id="submitBtn">Lưu</button>
+            </div>
         </div>
-      </div>
 
-      <button class="btn btn-secondary mt-4 w-100" id="back1">↩ Quay lại</button>
+    </div>
     </div>
 
-    <!-- STEP 3 -->
-    <div id="step3" class="step">
-      <h5>3️⃣ Nhập Số Lượng</h5>
-      <input type="text" id="nhanvienId" placeholder="Mã nhân viên" class="form-control form-control-lg mb-2"required>
-      <input type="number" id="soLuongDat" placeholder="Số lượng đạt" class="form-control form-control-lg mb-2" required>
-      <input type="number" id="soLuongLoi" placeholder="Số lượng lỗi" class="form-control form-control-lg mb-2">
-      <input type="text" id="dienGiai" placeholder="Diễn giải (nếu có)" class="form-control form-control-lg mb-3">
+    <!-- ORIGINAL SCRIPT + QR -->
+    <script>
+        const overlay = document.getElementById('overlay');
+        const nhapData = {};
+        const suggestBox = document.getElementById('suggestBox');
+        const searchLenh = document.getElementById('searchLenh');
 
-      <div class="d-flex justify-content-between">
-        <button class="btn btn-secondary" id="back2">↩ Quay lại</button>
-        <button class="btn btn-success" id="confirmBtn">✅ Tiếp tục</button>
-      </div>
-    </div>
+        document.getElementById('touchBtn').onclick = () => {
+            overlay.style.display = 'flex';
+            requestAnimationFrame(() => overlay.classList.add('show'));
+        };
 
-    <!-- STEP 4 -->
-    <div id="step4" class="step">
-      <h5>Xác Nhận Dữ Liệu</h5>
-      <div id="reviewBox" class="border p-3 mb-3 rounded text-start"></div>
-      <div id="alertBox" class="mb-2"></div>
-      <div class="d-flex justify-content-between">
-        <button class="btn btn-secondary" id="back3">↩ Sửa</button>
-        <button class="btn btn-primary" id="submitBtn">Lưu</button>
-      </div>
-    </div>
+        document.getElementById('closeBtn').onclick = closeOverlay;
 
-  </div>
-</div>
+        function closeOverlay() {
+            overlay.classList.remove('show');
+            setTimeout(() => overlay.style.display = 'none', 300);
+        }
 
-<!-- ORIGINAL SCRIPT + QR -->
-<script>
-const overlay = document.getElementById('overlay');
-const nhapData = {};
-const suggestBox = document.getElementById('suggestBox');
-const searchLenh = document.getElementById('searchLenh');
+        function showStep(id) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
 
-document.getElementById('touchBtn').onclick = ()=>{
-  overlay.style.display = 'flex';
-  requestAnimationFrame(()=>overlay.classList.add('show'));
-};
+        /* ======================= SEARCH LỆNH ======================= */
+        let timer;
+        searchLenh.addEventListener('input', function() {
+            const keyword = this.value.trim();
+            clearTimeout(timer);
+            if (keyword.length < 2) {
+                suggestBox.innerHTML = '';
+                return;
+            }
+            timer = setTimeout(async () => {
+                const res = await fetch(
+                    `{{ route('lenh-sx.search') }}?q=${encodeURIComponent(keyword)}`);
+                const data = await res.json();
+                if (data.length === 0) {
+                    suggestBox.innerHTML = "<div class='p-2 text-muted'>Không tìm thấy mã lệnh</div>";
+                    return;
+                }
+                suggestBox.innerHTML = data.map(item =>
+                    `<div class='suggest-item' data-value='${item.ma_lenh}'><b>${item.ma_lenh}</b> - ${item.description||''}</div>`
+                ).join('');
+                document.querySelectorAll('.suggest-item').forEach(it => {
+                    it.onclick = () => {
+                        nhapData.lenh_sx = it.dataset.value;
+                        showStep('step2');
+                    };
+                });
+            }, 400);
+        });
 
-document.getElementById('closeBtn').onclick = closeOverlay;
-function closeOverlay(){
-  overlay.classList.remove('show');
-  setTimeout(()=>overlay.style.display='none',300);
-}
+        /* ======================= QR CODE SCAN ======================= */
+        let qrScanner;
+        const qrDiv = document.getElementById('qrReader');
+        const btnScan = document.getElementById('scanQRBtn');
+        const btnStop = document.getElementById('stopScanBtn');
 
-function showStep(id){
-  document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
+        btnScan.onclick = () => {
+            qrDiv.style.display = 'block';
+            btnStop.style.display = 'block';
 
-/* ======================= SEARCH LỆNH ======================= */
-let timer;
-searchLenh.addEventListener('input', function(){
-  const keyword = this.value.trim();
-  clearTimeout(timer);
-  if(keyword.length < 2){
-    suggestBox.innerHTML = '';
-    return;
-  }
-  timer = setTimeout(async ()=>{
-    const res = await fetch(`{{ route('lenh-sx.search') }}?q=${encodeURIComponent(keyword)}`);
-    const data = await res.json();
-    if(data.length===0){
-      suggestBox.innerHTML = "<div class='p-2 text-muted'>Không tìm thấy mã lệnh</div>";
-      return;
-    }
-    suggestBox.innerHTML = data.map(item=>
-      `<div class='suggest-item' data-value='${item.ma_lenh}'><b>${item.ma_lenh}</b> - ${item.description||''}</div>`
-    ).join('');
-    document.querySelectorAll('.suggest-item').forEach(it=>{
-      it.onclick = ()=>{
-        nhapData.lenh_sx = it.dataset.value;
-        showStep('step2');
-      };
-    });
-  }, 400);
-});
+            qrScanner = new Html5Qrcode("qrReader");
 
-/* ======================= QR CODE SCAN ======================= */
-let qrScanner;
-const qrDiv = document.getElementById('qrReader');
-const btnScan = document.getElementById('scanQRBtn');
-const btnStop = document.getElementById('stopScanBtn');
+            qrScanner.start({
+                    facingMode: "environment"
+                }, {
+                    fps: 10,
+                    qrbox: 240
+                },
+                qrData => {
+                    nhapData.lenh_sx = qrData;
 
-btnScan.onclick = () => {
-  qrDiv.style.display = 'block';
-  btnStop.style.display = 'block';
+                    qrScanner.stop().then(() => {
+                        qrDiv.style.display = 'none';
+                        btnStop.style.display = 'none';
+                    });
 
-  qrScanner = new Html5Qrcode("qrReader");
+                    showStep("step2");
+                }
+            );
+        };
 
-  qrScanner.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 240 },
-    qrData => {
-      nhapData.lenh_sx = qrData;
+        btnStop.onclick = () => {
+            qrScanner.stop().then(() => {
+                qrDiv.style.display = 'none';
+                btnStop.style.display = 'none';
+            });
+        };
 
-      qrScanner.stop().then(()=>{
-        qrDiv.style.display = 'none';
-        btnStop.style.display = 'none';
-      });
+        /* ======================= STEP LOGIC ======================= */
+        /* === Toggle Extra Fields in Step 3 === */
+        document.getElementById("toggleExtra").onclick = () => {
+            const extra = document.getElementById("extraFields");
 
-      showStep("step2");
-    }
-  );
-};
+            if (extra.style.display === "none") {
+                extra.style.display = "block";
+                document.getElementById("toggleExtra").innerHTML = "➖ Ẩn thông tin bổ sung";
+            } else {
+                extra.style.display = "none";
+                document.getElementById("toggleExtra").innerHTML = "➕ Thêm thông tin (Máy / Pick / Cuộn...)";
+            }
+        };
 
-btnStop.onclick = () => {
-  qrScanner.stop().then(()=>{
-    qrDiv.style.display = 'none';
-    btnStop.style.display = 'none';
-  });
-};
+        document.querySelectorAll('.congdoan').forEach(btn => {
+            btn.onclick = () => {
+                nhapData.cong_doan = btn.dataset.value;
+                showStep('step3');
+            };
+        });
 
-/* ======================= STEP LOGIC ======================= */
+        document.getElementById('back1').onclick = () => showStep('step1');
+        document.getElementById('back2').onclick = () => showStep('step2');
+        document.getElementById('back3').onclick = () => showStep('step3');
 
-document.querySelectorAll('.congdoan').forEach(btn=>{
-  btn.onclick=()=>{
-    nhapData.cong_doan = btn.dataset.value;
-    showStep('step3');
-  };
-});
+        document.getElementById('confirmBtn').onclick = () => {
+            nhapData.so_luong_dat = document.getElementById('soLuongDat').value;
+            nhapData.so_luong_loi = document.getElementById('soLuongLoi').value;
+            nhapData.dien_giai = document.getElementById('dienGiai').value;
+            nhapData.nhan_vien_id = document.getElementById('nhanvienId').value;
+            nhapData.may_sx = document.getElementById('maySx').value;
+            nhapData.so_pick = document.getElementById('soPick').value;
+            nhapData.so_cuon = document.getElementById('soCuon').value;
+            nhapData.so_dong = document.getElementById('soDong').value;
+            nhapData.so_ban = document.getElementById('soBan').value;
+            nhapData.so_dau = document.getElementById('soDau').value;
+            nhapData.so_khuon = document.getElementById('soKhuon').value;
+            nhapData.khuon_sx = document.getElementById('khuonSx').value;
 
-document.getElementById('back1').onclick=()=>showStep('step1');
-document.getElementById('back2').onclick=()=>showStep('step2');
-document.getElementById('back3').onclick=()=>showStep('step3');
-
-document.getElementById('confirmBtn').onclick=()=>{
-  nhapData.so_luong_dat = document.getElementById('soLuongDat').value;
-  nhapData.so_luong_loi = document.getElementById('soLuongLoi').value;
-  nhapData.dien_giai = document.getElementById('dienGiai').value;
-  nhapData.nhan_vien_id = document.getElementById('nhanvienId').value;
-
-  document.getElementById('reviewBox').innerHTML = `
+            document.getElementById('reviewBox').innerHTML = `
     <b>Mã lệnh:</b> ${nhapData.lenh_sx}<br>
     <b>Công đoạn:</b> ${nhapData.cong_doan}<br>
     <b>Số lượng đạt:</b> ${nhapData.so_luong_dat}<br>
@@ -321,84 +443,156 @@ document.getElementById('confirmBtn').onclick=()=>{
     <b>Diễn giải:</b> ${nhapData.dien_giai || '-'} <br>
     <b>Mã nhân viên:</b> ${nhapData.nhan_vien_id || '-'}
   `;
-  showStep('step4');
-};
+            showStep('step4');
+        };
 
-document.getElementById('submitBtn').onclick = async ()=>{
-  const formData = new FormData();
-  for(const k in nhapData) formData.append(k, nhapData[k]);
-  const alertBox = document.getElementById('alertBox');
-  alertBox.innerHTML = `<div class='text-info'>⏳ Đang lưu...</div>`;
+        document.getElementById('submitBtn').onclick = async () => {
+            const formData = new FormData();
+            for (const k in nhapData) formData.append(k, nhapData[k]);
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerHTML = `<div class='text-info'>⏳ Đang lưu...</div>`;
 
-  const res = await fetch('{{ route("nhap-sx.submit") }}', {
-    method:'POST',
-    headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'},
-    body: formData
-  });
-  const data = await res.json();
+            const res = await fetch('{{ route('nhap-sx.submit') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            });
+            const data = await res.json();
 
-  if(data.success){
-    alertBox.innerHTML = `<div class='alert alert-success'>${data.message}</div>`;
-    setTimeout(()=>{
-      window.open(`/bao-cao-sx/pdf/${data.data.id}`,'_blank');
-      showStep('step1');
-      closeOverlay();
-    },1000);
-  } else {
-    alertBox.innerHTML = `<div class='alert alert-danger'>Lỗi: ${data.message}</div>`;
-  }
-};
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'ĐÃ LƯU THÀNH CÔNG',
+                    html: `
+        <div style="font-size:20px;margin-top:10px">
+            Phiếu số: <b>${data.data.id}</b>
+        </div>
+        <div style="margin-top:15px;font-size:16px;color:#ffdddd">
+            Gặp Quản lý sản xuất hoặc Tiến để in phiếu sản xuất.
+        </div>
+    `,
+                    confirmButtonText: "ĐỒNG Ý",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    allowEnterKey: false
+                }).then(() => {
+                    // Khóa toàn bộ giao diện để không thể bấm Lưu lần 2
+                    document.body.innerHTML =
+                        `<div style="padding:30px;font-size:22px;text-align:center;color:white">
+            <b>Phiếu đã lưu thành công.</b><br>
+            Bạn có thể đóng trang.
+        </div>`;
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi!',
+                    text: data.message,
+                });
+            }
+        };
 
-/* ====================== IMPORT ====================== */
-document.getElementById('importForm').addEventListener('submit',async function(e){
-  e.preventDefault();
-  const formData=new FormData(this);
-  const result=document.getElementById('importResult');
-  result.innerHTML=`<div class='text-info'>⏳ Đang import...</div>`;
-  const res=await fetch('{{ route("lenh-sx.import") }}',{
-    method:'POST',
-    headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'},
-    body:formData
-  });
-  const data=await res.json();
-  if(data.success){
-    result.innerHTML=`<div class='alert alert-success'>${data.message}</div>`;
-    setTimeout(()=>location.reload(),1000);
-  } else result.innerHTML=`<div class='alert alert-danger'>${data.message}</div>`;
-});
-@if (!empty($ma_lenh_url))
-    nhapData.lenh_sx = "{{ $ma_lenh_url }}";
 
-    overlay.style.display = "flex";
-    requestAnimationFrame(() => overlay.classList.add("show"));
+        /* ====================== IMPORT ====================== */
+        document.getElementById('importForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const result = document.getElementById('importResult');
+            result.innerHTML = `<div class='text-info'>⏳ Đang import...</div>`;
+            const res = await fetch('{{ route('lenh-sx.import') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            });
+            const data = await res.json();
+            if (data.success) {
+                result.innerHTML = `<div class='alert alert-success'>${data.message}</div>`;
+                setTimeout(() => location.reload(), 1000);
+            } else result.innerHTML = `<div class='alert alert-danger'>${data.message}</div>`;
+        });
+        @if (!empty($ma_lenh_url))
+            nhapData.lenh_sx = "{{ $ma_lenh_url }}";
 
-    // Nhảy thẳng Step 2
-    showStep("step2");
+            overlay.style.display = "flex";
+            requestAnimationFrame(() => overlay.classList.add("show"));
 
-    // Nếu muốn hiển thị vào ô tìm kiếm
-    document.getElementById('searchLenh').value = "{{ $ma_lenh_url }}";
-@endif
+            showStep("step2");
+            document.getElementById('searchLenh').value = "{{ $ma_lenh_url }}";
+        @endif
+    </script>
 
-</script>
-
-<!-- PARTICLES -->
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-<script>
-particlesJS("particles-js",{
-  "particles":{"number":{"value":80,"density":{"enable":true,"value_area":800}},
-  "color":{"value":"#00ff99"},
-  "shape":{"type":"circle"},
-  "opacity":{"value":0.5},
-  "size":{"value":3,"random":true},
-  "line_linked":{"enable":true,"distance":120,"color":"#00ff99","opacity":0.4,"width":1},
-  "move":{"enable":true,"speed":1.2,"direction":"none","out_mode":"bounce"}},
-  "interactivity":{"events":{"onhover":{"enable":true,"mode":"grab"},
-  "onclick":{"enable":true,"mode":"repulse"}},
-  "modes":{"grab":{"distance":200,"line_linked":{"opacity":0.9}},
-  "repulse":{"distance":150,"duration":0.4}}},
-  "retina_detect":true
-});
-</script>
+    <!-- PARTICLES -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script>
+        particlesJS("particles-js", {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#00ff99"
+                },
+                "shape": {
+                    "type": "circle"
+                },
+                "opacity": {
+                    "value": 0.5
+                },
+                "size": {
+                    "value": 3,
+                    "random": true
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 120,
+                    "color": "#00ff99",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 1.2,
+                    "direction": "none",
+                    "out_mode": "bounce"
+                }
+            },
+            "interactivity": {
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "repulse"
+                    }
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 200,
+                        "line_linked": {
+                            "opacity": 0.9
+                        }
+                    },
+                    "repulse": {
+                        "distance": 150,
+                        "duration": 0.4
+                    }
+                }
+            },
+            "retina_detect": true
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </body>
+
 </html>

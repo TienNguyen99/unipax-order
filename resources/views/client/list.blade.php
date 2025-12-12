@@ -67,7 +67,7 @@
             <thead class="table-secondary">
                 <tr>
                     <th>ID</th>
-                    <th>Ngày In</th>
+                    <th>Ngày nhập phiếu</th>
                     <th>Lệnh SX</th>
                     <th>Công đoạn</th>
                     <th>Công nhân</th>
@@ -130,8 +130,8 @@
                 const data = await response.json();
 
                 const rows = data.map(row => {
-                    const ngayNhapFull = row.ngay_nhap
-                        ? new Date(row.ngay_nhap).toLocaleString('vi-VN', {
+                    const ngayNhapFull = row.created_at
+                        ? new Date(row.created_at).toLocaleString('vi-VN', {
                             timeZone: 'Asia/Ho_Chi_Minh',
                             day: '2-digit',
                             month: '2-digit',
@@ -143,7 +143,15 @@
                         })
                         : "";
 
-                    const groupDate = row.ngay_nhap ? row.ngay_nhap.split(" ")[0] : "";
+                    const groupDate = row.created_at
+                        ? new Date(row.created_at).toLocaleString('vi-VN', {
+                            timeZone: 'Asia/Ho_Chi_Minh',
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour12: false
+                        })
+                        : "";
 
                     const inButton = `<button class="btn btn-sm btn-primary" onclick="printSX(${row.id})">In</button>`;
 
@@ -192,31 +200,35 @@
         }
 
         async function printSX(id, force = false) {
-            try {
-                const response = await fetch(`/nhap-sx/${id}/print?force=${force}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                const result = await response.json();
-
-                if (result.confirm) {
-                    if (confirm(result.message)) printSX(id, true);
-                    return;
-                }
-
-                alert(result.message);
-                if (result.success && result.pdf_url) {
-                    window.open(result.pdf_url, "_blank");
-                }
-
-            } catch (err) {
-                alert("Lỗi khi in!");
+    try {
+        const response = await fetch(`/nhap-sx/${id}/print?force=${force}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type': 'application/json'
             }
+        });
+
+        const result = await response.json();
+
+        if (result.confirm) {
+            if (confirm(result.message)) printSX(id, true);
+            return;
         }
+
+        // Thành công → mở PDF, KHÔNG báo message
+        if (result.success) {
+            if (result.pdf_url) window.open(result.pdf_url, "_blank");
+        } else {
+            // Chỉ báo lỗi nếu có
+            alert(result.message ?? "Không thể in phiếu");
+        }
+
+    } catch (err) {
+        alert("Lỗi khi in!");
+    }
+}
+
 
         fetchLatestData();
         setInterval(fetchLatestData, 10000);

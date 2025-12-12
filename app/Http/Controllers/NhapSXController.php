@@ -36,13 +36,21 @@ class NhapSXController extends Controller
             'so_luong_dat' => 'nullable|string|max:20',
             'so_luong_loi' => 'nullable|string|max:20',
             'dien_giai' => 'nullable|string|max:500',
+            'may_sx' => 'nullable|string|max:100',
+            'so_pick' => 'nullable|string|max:50',
+            'so_cuon' => 'nullable|string|max:50',
+            'so_dong' => 'nullable|string|max:50',
+            'so_ban' => 'nullable|string|max:50',
+            'so_dau' => 'nullable|string|max:50',
+            'so_khuon' => 'nullable|string|max:50',
+            'khuon_sx' => 'nullable|string|max:100',
         ]);
 
         $log = NhapSXLog::create($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Đã lưu dữ liệu thành công!',
+            'message' => 'Đã lưu. Vui lòng gặp anh Thái để in phiếu!',
             'data' => $log
         ]);
     }
@@ -72,7 +80,7 @@ class NhapSXController extends Controller
     // API trả dữ liệu JSON
     public function apiLatest()
     {
-        $data = NhapSXLog::orderBy('id', 'asc')->take(50)->get();
+        $data = NhapSXLog::orderBy('da_in', 'asc')->take(50)->get();
         return response()->json($data);
     }
 
@@ -82,18 +90,21 @@ class NhapSXController extends Controller
     $log = NhapSXLog::findOrFail($id);
     $today = Carbon::today()->toDateString();
 
-    $alreadyPrinted = NhapSXLog::where('lenh_sx', $log->lenh_sx)
-        ->whereDate('ngay_nhap', $today)
-        ->where('da_in', true)
-        ->exists();
-
+    // $alreadyPrinted = NhapSXLog::where('lenh_sx', $log->lenh_sx)
+    //     ->whereDate('created_at', $today)
+    //     ->where('da_in', true)
+    //     ->exists();
+$alreadyPrinted = NhapSXLog::where('id', $id)
+    ->whereDate('created_at', $today)
+    ->where('da_in', true)
+    ->exists();
     $forcePrint = request()->get('force', false);
 
     if ($alreadyPrinted && !$forcePrint) {
         return response()->json([
             'success' => false,
             'confirm' => true,
-            'message' => '⚠️ Lệnh SX này đã được in hôm nay! Bạn có muốn in lại không?'
+            'message' => 'Phiếu đã in. Có muốn in lại ?'
         ]);
     }
 
