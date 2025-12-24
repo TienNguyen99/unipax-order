@@ -279,7 +279,7 @@
         <form action="{{ route('excel.print') }}" method="POST">
             @csrf
             <input type="text" id="sheet" name="sheet" placeholder="🔹 Nhập tên sheet..." required>
-            <button type="submit">🖨️ In</button>
+            <button type="submit">In</button>
         </form>
     </div>
 

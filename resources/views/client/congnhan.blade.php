@@ -175,11 +175,11 @@
 
 <body>
     <div class="main-card">
-        <h3 class="header-title">🏭 PHIẾU SẢN XUẤT CÔNG NHÂN</h3>
+        <h3 class="header-title">PHIẾU SẢN XUẤT CÔNG NHÂN</h3>
 
         <!-- Import Section -->
         <div class="mb-4">
-            <h5 class="text-secondary mb-3">📁 Import Lệnh Sản Xuất</h5>
+            <h5 class="text-secondary mb-3">Import Lệnh Sản Xuất</h5>
             <form id="importForm" enctype="multipart/form-data">
                 <input type="file" id="fileInput" name="file" accept=".xlsx,.xls" class="form-control mb-2"
                     required>
@@ -191,7 +191,7 @@
         <hr>
 
         <button id="touchBtn" class="btn btn-success btn-main">
-            ✏️ NHẬP SẢN XUẤT
+            NHẬP SẢN XUẤT
         </button>
     </div>
 
@@ -202,23 +202,23 @@
 
             <!-- STEP 1: Tìm mã lệnh -->
             <div id="step1" class="step active">
-                <h4 class="step-title">🔍 Bước 1: Tìm Mã Lệnh</h4>
+                <h4 class="step-title">Bước 1: Tìm Mã Lệnh</h4>
 
                 <input type="text" id="searchLenh" placeholder="Nhập mã lệnh..." class="form-control mb-3">
                 <div id="suggestBox" class="suggest-box"></div>
 
-                <button class="btn btn-warning w-100 mt-3" id="scanQRBtn">📷 Quét Mã QR</button>
+                <button class="btn btn-warning w-100 mt-3" id="scanQRBtn">Quét Mã QR</button>
 
                 <div id="qrReader" style="width:100%; display:none;" class="mt-3"></div>
-                <button class="btn btn-secondary w-100 mt-2" id="stopScanBtn" style="display:none;">🛑 Dừng
+                <button class="btn btn-secondary w-100 mt-2" id="stopScanBtn" style="display:none;">Dừng
                     Quét</button>
             </div>
 
             <!-- STEP 2: Chọn công việc -->
             <div id="step2" class="step">
-                <h4 class="step-title">⚙️ Bước 2: Chọn Công Việc</h4>
+                <h4 class="step-title">Bước 2: Chọn Công Việc</h4>
 
-                <div class="section-label">🏢 Tầng Trệt</div>
+                <div class="section-label">Tầng Trệt</div>
                 <div class="row">
                     <div class="col-6">
                         <div class="work-card congdoan" data-value="DỆT DÂY">DỆT DÂY</div>
@@ -239,11 +239,11 @@
                         <div class="work-card congdoan" data-value="QUAY ĐẦU">QUAY ĐẦU</div>
                     </div>
                     <div class="col-12">
-                        <div class="work-card congdoan" data-value="CÔNG VIỆC KHÁC">CÔNG VIỆC KHÁC</div>
+                        <div class="work-card congdoan" data-value="KHÁC">KHÁC</div>
                     </div>
                 </div>
 
-                <div class="section-label">🏢 Tầng 1</div>
+                <div class="section-label">Tầng 1</div>
                 <div class="row">
                     <div class="col-6">
                         <div class="work-card congdoan" data-value="IN LỤA">IN LỤA</div>
@@ -262,7 +262,7 @@
                     </div>
                 </div>
 
-                <div class="section-label">✅ QC</div>
+                <div class="section-label">QC</div>
                 <div class="row">
                     <div class="col-6">
                         <div class="work-card congdoan" data-value="KIỂM HÀNG">KIỂM HÀNG</div>
@@ -277,7 +277,7 @@
 
             <!-- STEP 3: Nhập thông tin -->
             <div id="step3" class="step">
-                <h4 class="step-title">📝 Bước 3: Nhập Thông Tin</h4>
+                <h4 class="step-title">Bước 3: Nhập Thông Tin</h4>
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Mã (tên) công nhân *</label>
@@ -296,8 +296,15 @@
 
                 <div class="mb-3">
                     <label class="form-label fw-bold">Ghi chú</label>
-                    <input type="text" id="dienGiai" class="form-control">
+                    <div style="display:flex; gap:10px;">
+                        <input type="text" id="dienGiai" class="form-control">
+                        <button type="button" id="micBtn" class="btn btn-danger" style="width:55px;">
+                            🎤
+                        </button>
+                    </div>
+                    <div id="micStatus" class="text-muted mt-1" style="font-size: 0.9rem;"></div>
                 </div>
+
 
                 <button id="toggleExtra" class="btn btn-outline-primary w-100 mb-3">
                     ➕ Thêm Thông Tin Chi Tiết
@@ -339,21 +346,21 @@
                 </div>
 
                 <div class="btn-group-custom">
-                    <button class="btn btn-secondary" id="back2">↩ Quay Lại</button>
-                    <button class="btn btn-success" id="confirmBtn">✅ Tiếp Tục</button>
+                    <button class="btn btn-secondary" id="back2">Quay Lại</button>
+                    <button class="btn btn-success" id="confirmBtn">Tiếp Tục</button>
                 </div>
             </div>
 
             <!-- STEP 4: Xác nhận -->
             <div id="step4" class="step">
-                <h4 class="step-title">✅ Bước 4: Xác Nhận</h4>
+                <h4 class="step-title">Bước 4: Xác Nhận</h4>
 
                 <div id="reviewBox" class="mb-3"></div>
                 <div id="alertBox" class="mb-3"></div>
 
                 <div class="btn-group-custom">
-                    <button class="btn btn-secondary" id="back3">↩ Sửa</button>
-                    <button class="btn btn-primary" id="submitBtn">💾 Lưu</button>
+                    <button class="btn btn-secondary" id="back3">Sửa</button>
+                    <button class="btn btn-primary" id="submitBtn">Lưu</button>
                 </div>
             </div>
         </div>
@@ -498,7 +505,7 @@
             const formData = new FormData();
             for (const k in nhapData) formData.append(k, nhapData[k]);
             const alertBox = document.getElementById('alertBox');
-            alertBox.innerHTML = `<div class='alert alert-info'>⏳ Đang lưu...</div>`;
+            alertBox.innerHTML = `<div class='alert alert-info'>Đang lưu thông tin...</div>`;
 
             const res = await fetch('{{ route('nhap-sx.submit') }}', {
                 method: 'POST',
@@ -510,6 +517,13 @@
             const data = await res.json();
 
             if (data.success) {
+                // 🖨️ GỌI IN NGAY
+                await fetch(`/nhap-sx/${data.data.id}/print-direct`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                });
                 Swal.fire({
                     icon: 'success',
                     title: 'ĐÃ LƯU THÀNH CÔNG',
@@ -527,8 +541,10 @@
                     allowEnterKey: false
                 }).then(() => {
                     document.body.innerHTML = `<div style="padding:30px;font-size:22px;text-align:center">
-                        <b>Phiếu đã lưu thành công.</b><br>
-                        NHẮN ANH THÁI HOẶC TIẾN SỐ <b>${data.data.id}</b> ĐỂ IN PHIẾU SẢN XUẤT KHỎI GHI TAY NHA!<br><br>
+                        <b>PHIẾU ĐÃ IN RA BÀN ANH THÁI LẤY</b><br>
+                        NHẮN ANH THÁI HOẶC TIẾN SỐ <b>${data.data.id}</b> ĐỂ IN PHIẾU SẢN XUẤT KHỎI GHI TAY!<br>
+                        
+                        <br>
                         Bạn có thể đóng trang.
                     </div>`;
                 });
@@ -567,6 +583,78 @@
             showStep("step2");
             document.getElementById('searchLenh').value = "{{ $ma_lenh_url }}";
         @endif
+        /* 🎤 SPEECH TO TEXT (VI TIẾNG VIỆT) */
+        let recognizing = false;
+        let recognition;
+
+        if ("webkitSpeechRecognition" in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.lang = "vi-VN";
+            recognition.continuous = true; // Cho phép nghe liên tục
+            recognition.interimResults = true; // Hiển thị kết quả tạm thời
+
+            recognition.onstart = function() {
+                recognizing = true;
+                document.getElementById("micStatus").innerHTML = "⏺ Đang nghe...";
+                document.getElementById("micBtn").classList.add("btn-success");
+                document.getElementById("micBtn").classList.remove("btn-danger");
+            };
+
+            recognition.onend = function() {
+                recognizing = false;
+                document.getElementById("micStatus").innerHTML = "";
+                document.getElementById("micBtn").classList.remove("btn-success");
+                document.getElementById("micBtn").classList.add("btn-danger");
+            };
+
+            recognition.onresult = function(event) {
+                const input = document.getElementById("dienGiai");
+                let interimText = "";
+                let finalText = "";
+
+                // Lấy tất cả kết quả
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalText += transcript + " ";
+                    } else {
+                        interimText += transcript;
+                    }
+                }
+
+                // Nếu có text đã hoàn thành, thêm vào input
+                if (finalText) {
+                    input.value = input.value ? input.value.trim() + " " + finalText.trim() : finalText.trim();
+                }
+
+                // Hiển thị trạng thái text tạm thời
+                if (interimText) {
+                    document.getElementById("micStatus").innerHTML = `⏺ Đang nghe: <i>${interimText}</i>`;
+                } else if (recognizing) {
+                    document.getElementById("micStatus").innerHTML = "⏺ Đang nghe...";
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Speech recognition error:", event.error);
+                if (event.error === 'no-speech') {
+                    document.getElementById("micStatus").innerHTML = "Không nghe thấy giọng nói";
+                }
+            };
+        } else {
+            document.getElementById("micStatus").innerHTML =
+                "Máy không hỗ trợ nhận diện giọng nói.";
+        }
+
+        document.getElementById("micBtn").onclick = function() {
+            if (!recognition) return;
+
+            if (!recognizing) {
+                recognition.start();
+            } else {
+                recognition.stop();
+            }
+        };
     </script>
 </body>
 

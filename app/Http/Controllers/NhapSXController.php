@@ -10,6 +10,7 @@ use App\Imports\LenhSXImport;
 use Illuminate\Support\Facades\DB;
 use App\Exports\BaoCaoSXExport;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 
 class NhapSXController extends Controller
 {
@@ -51,9 +52,33 @@ class NhapSXController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Đã lưu. Vui lòng gặp anh Thái để in phiếu!',
-            'data' => $log
+                'data' => [
+        'id' => $log->id
+    ]
         ]);
     }
+public function printDirect($id)
+{
+    $log = NhapSXLog::findOrFail($id);
+
+    // ✅ đánh dấu đã in
+    $log->da_in = true;
+    $log->ngay_nhap = now();
+    $log->save();
+
+    $pdfUrl = route('bao-cao-sx.pdf', ['id' => $id]);
+
+    // ✅ gọi node in
+    Http::timeout(10)->withHeaders([
+        'X-API-KEY' => 'IN_LBP2900_2025'
+    ])->post('http://192.168.1.14:3333/print', [
+        'pdf_url' => $pdfUrl,
+    ]);
+
+    return response()->json([
+        'success' => true
+    ]);
+}
 
     // API tìm kiếm mã lệnh
     public function searchLenhSX(Request $request)
@@ -107,7 +132,12 @@ $alreadyPrinted = NhapSXLog::where('id', $id)
             'message' => 'Phiếu đã in. Có muốn in lại ?'
         ]);
     }
-
+// // sau khi save log + tạo pdf
+// Http::timeout(5)->withHeaders([
+//     'X-API-KEY' => 'IN_LBP2900_2025'
+// ])->post('http://192.168.1.14:3333/print', [
+//     'pdf_url' => route('bao-cao-sx.pdf', ['id' => $id]),
+// ]);
     // ✅ Cập nhật ngay_nhap và da_in **trước khi export**
     $log->da_in = true;
     $log->ngay_nhap = now();

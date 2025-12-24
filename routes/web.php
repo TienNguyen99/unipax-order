@@ -38,4 +38,6 @@ Route::post('/lenh-sx/import', [NhapSXController::class, 'importLenhSX'])->name(
 // Route xuất báo cáo PDF
 Route::get('/bao-cao-sx/pdf/{id}', [NhapSXController::class, 'exportBaoCaoPDF'])->name('bao-cao-sx.pdf');
 Route::post('/nhap-sx/{id}/print', [NhapSXController::class, 'checkAndPrint'])->name('nhap-sx.print');
-
+// in trực tiếp sau khi công nhân nhập
+Route::post('/nhap-sx/{id}/print-direct', [NhapSXController::class, 'printDirect'])
+    ->name('nhap-sx.print');
