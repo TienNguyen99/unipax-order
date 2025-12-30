@@ -69,7 +69,7 @@ public function printDirect($id)
     $pdfUrl = route('bao-cao-sx.pdf', ['id' => $id]);
 
     // ✅ gọi node in
-    Http::timeout(10)->withHeaders([
+    Http::timeout(1)->withHeaders([
         'X-API-KEY' => 'IN_LBP2900_2025'
     ])->post('http://192.168.1.14:3333/print', [
         'pdf_url' => $pdfUrl,

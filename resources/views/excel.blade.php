@@ -29,7 +29,7 @@
             top: 0;
             left: 0;
             z-index: 0;
-            
+
             /* background: radial-gradient(circle at top left, #e8faff 0%, #f9f9ff 100%); */
             background: linear-gradient(180deg, #cfd8e3, #aebbc9);
         }
@@ -235,13 +235,13 @@
                                 <li>🧩 <a
                                         href="https://1drv.ms/x/c/780111bcbe29311c/EfaqTeXH8EtNmzpWkLCmRdMBzaj7bfF2tKq92YeBE4PXGA?e=t4kP4v"
                                         target="_blank">2025 Từ 2017-2999</a></li>
-                                        <li>🧩 <a
+                                <li>🧩 <a
                                         href="https://1drv.ms/x/c/780111bcbe29311c/IQCn3GprQPWoTI8RSA2EEEX9AR4TB1CMqGQCi_P-uKCY3j8?e=lyskep"
                                         target="_blank">2025 Từ 3000-3497</a></li>
                                 <li>🧩 <a
                                         href="https://1drv.ms/x/c/780111bcbe29311c/EdrZO6-SkGBNq-aorfBftHgB1YhK_g97KsBob3_PD0dXUQ?e=0S0Fv4"
                                         target="_blank">2024 Từ 2157 - 2999</a></li>
-                                        
+
                                 <li>🧩 <a
                                         href="https://1drv.ms/x/c/780111bcbe29311c/EWY_a4S9JAVAkhSqRKME9DwBBgnRm7T1mWYYt7FRTcPKzw?e=8mumah"
                                         target="_blank">2024 Từ 3000 - 3964</a></li>
@@ -285,50 +285,62 @@
 
     <!-- Hiệu ứng nơron -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script>
-particlesJS("particles-js", {
-    particles: {
-        number: {
-            value: 260,  // ❄️ Tuyết dày hơn
-            density: { enable: true, value_area: 800 }
-        },
-        color: { value: "#ffffff" },
-        shape: {
-            type: "polygon",
-            polygon: {
-                nb_sides: 6  // ❄️ Bông tuyết 6 cạnh
-            }
-        },
-        opacity: {
-            value: 0.9,
-            random: true
-        },
-        size: {
-            value: 5,
-            random: true
-        },
-        line_linked: { enable: false },
+    <script>
+        particlesJS("particles-js", {
+            particles: {
+                number: {
+                    value: 260, // ❄️ Tuyết dày hơn
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: "#ffffff"
+                },
+                shape: {
+                    type: "polygon",
+                    polygon: {
+                        nb_sides: 6 // ❄️ Bông tuyết 6 cạnh
+                    }
+                },
+                opacity: {
+                    value: 0.9,
+                    random: true
+                },
+                size: {
+                    value: 5,
+                    random: true
+                },
+                line_linked: {
+                    enable: false
+                },
 
-        move: {
-            direction: "bottom",
-            speed: 0.8,   // ❄️ Rơi chậm – mềm
-            random: true,
-            straight: false,  // ❄️ Cho phép lắc trái/phải khi rơi
-            out_mode: "out",
-            bounce: false
-        }
-    },
+                move: {
+                    direction: "bottom",
+                    speed: 0.8, // ❄️ Rơi chậm – mềm
+                    random: true,
+                    straight: false, // ❄️ Cho phép lắc trái/phải khi rơi
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
 
-    interactivity: {
-        events: {
-            onhover: { enable: true, mode: "repulse" },
-            onclick: { enable: false}
-        }
-    },
+            interactivity: {
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: "repulse"
+                    },
+                    onclick: {
+                        enable: false
+                    }
+                }
+            },
 
-    retina_detect: true
-});
-</script>
+            retina_detect: true
+        });
+    </script>
 </body>
 
 </html>
