@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>PHIẾU SẢN XUẤT CÔNG NHÂN</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -164,6 +165,44 @@
             flex: 1;
         }
 
+        .qc-row {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .qc-row-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .qc-row-number {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .remove-qc-row {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
+        .remove-qc-row:hover {
+            background: #c82333;
+        }
+
         #reviewBox {
             background: #f8f9fa;
             padding: 15px;
@@ -221,61 +260,61 @@
                 <div class="section-label">Tầng Trệt</div>
                 <div class="row">
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="DỆT DÂY">DỆT DÂY</div>
+                        <div class="work-card congdoan" data-value="DỆT DÂY" data-type="normal">DỆT DÂY</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="DỆT NHÃN">DỆT NHÃN</div>
+                        <div class="work-card congdoan" data-value="DỆT NHÃN" data-type="normal">DỆT NHÃN</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="QUẤN CUỘN">QUẤN CUỘN</div>
+                        <div class="work-card congdoan" data-value="QUẤN CUỘN" data-type="normal">QUẤN CUỘN</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="THUN BẢN">THUN BẢN</div>
+                        <div class="work-card congdoan" data-value="THUN BẢN" data-type="normal">THUN BẢN</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="BẾ TPU">BẾ TPU</div>
+                        <div class="work-card congdoan" data-value="BẾ TPU" data-type="normal">BẾ TPU</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="QUAY ĐẦU">QUAY ĐẦU</div>
+                        <div class="work-card congdoan" data-value="QUAY ĐẦU" data-type="normal">QUAY ĐẦU</div>
                     </div>
                     <div class="col-12">
-                        <div class="work-card congdoan" data-value="KHÁC">KHÁC</div>
+                        <div class="work-card congdoan" data-value="KHÁC" data-type="normal">KHÁC</div>
                     </div>
                 </div>
 
                 <div class="section-label">Tầng 1</div>
                 <div class="row">
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="IN LỤA">IN LỤA</div>
+                        <div class="work-card congdoan" data-value="IN LỤA" data-type="normal">IN LỤA</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="IN TRỤC">IN TRỤC</div>
+                        <div class="work-card congdoan" data-value="IN TRỤC" data-type="normal">IN TRỤC</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="ĐÚC">ĐÚC</div>
+                        <div class="work-card congdoan" data-value="ĐÚC" data-type="normal">ĐÚC</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="CẮT">CẮT</div>
+                        <div class="work-card congdoan" data-value="CẮT" data-type="normal">CẮT</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="ÉP">ÉP</div>
+                        <div class="work-card congdoan" data-value="ÉP" data-type="normal">ÉP</div>
                     </div>
                 </div>
 
                 <div class="section-label">QC</div>
                 <div class="row">
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="KIỂM HÀNG">KIỂM HÀNG</div>
+                        <div class="work-card congdoan" data-value="KIỂM HÀNG" data-type="qc">KIỂM HÀNG</div>
                     </div>
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="ĐÓNG GÓI">ĐÓNG GÓI</div>
+                        <div class="work-card congdoan" data-value="ĐÓNG GÓI" data-type="qc">ĐÓNG GÓI</div>
                     </div>
                 </div>
 
                 <button class="btn btn-secondary w-100 mt-4" id="back1">↩ Quay Lại</button>
             </div>
 
-            <!-- STEP 3: Nhập thông tin -->
+            <!-- STEP 3: Nhập thông tin (Normal) -->
             <div id="step3" class="step">
                 <h4 class="step-title">Bước 3: Nhập Thông Tin</h4>
 
@@ -304,7 +343,6 @@
                     </div>
                     <div id="micStatus" class="text-muted mt-1" style="font-size: 0.9rem;"></div>
                 </div>
-
 
                 <button id="toggleExtra" class="btn btn-outline-primary w-100 mb-3">
                     ➕ Thêm Thông Tin Chi Tiết
@@ -348,6 +386,37 @@
                 <div class="btn-group-custom">
                     <button class="btn btn-secondary" id="back2">Quay Lại</button>
                     <button class="btn btn-success" id="confirmBtn">Tiếp Tục</button>
+                </div>
+            </div>
+
+            <!-- STEP 3B: Form QC Multi-row -->
+            <div id="step3qc" class="step">
+                <h4 class="step-title">Bước 3: Nhập Liệu QC</h4>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Mã (tên) công nhân *</label>
+                    <input type="text" id="nhanvienIdQC" class="form-control" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Ghi chú chung</label>
+                    <input type="text" id="dienGiaiQC" class="form-control">
+                </div>
+
+                <hr>
+                <h5 class="mb-3">Danh sách lệnh kiểm tra</h5>
+
+                <div id="qcRowsContainer">
+                    <!-- Rows will be added here -->
+                </div>
+
+                <button class="btn btn-outline-success w-100 mb-3" id="addQCRow">
+                    ➕ Thêm Lệnh
+                </button>
+
+                <div class="btn-group-custom">
+                    <button class="btn btn-secondary" id="backQC">Quay Lại</button>
+                    <button class="btn btn-success" id="confirmQCBtn">Tiếp Tục</button>
                 </div>
             </div>
 
@@ -468,44 +537,189 @@
         document.querySelectorAll('.congdoan').forEach(btn => {
             btn.onclick = () => {
                 nhapData.cong_doan = btn.dataset.value;
-                showStep('step3');
+                const type = btn.dataset.type;
+
+                if (type === 'qc') {
+                    // QC flow - show multi-row form
+                    showStep('step3qc');
+                    initQCForm();
+                } else {
+                    // Normal flow
+                    showStep('step3');
+                }
             };
         });
 
         document.getElementById('back1').onclick = () => showStep('step1');
         document.getElementById('back2').onclick = () => showStep('step2');
-        document.getElementById('back3').onclick = () => showStep('step3');
+        document.getElementById('back3').onclick = () => {
+            if (nhapData.qc_rows) {
+                showStep('step3qc');
+            } else {
+                showStep('step3');
+            }
+        };
+        document.getElementById('backQC').onclick = () => showStep('step2');
 
-        document.getElementById('confirmBtn').onclick = () => {
-            nhapData.so_luong_dat = document.getElementById('soLuongDat').value;
-            nhapData.so_luong_loi = document.getElementById('soLuongLoi').value;
-            nhapData.dien_giai = document.getElementById('dienGiai').value;
-            nhapData.nhan_vien_id = document.getElementById('nhanvienId').value;
-            nhapData.may_sx = document.getElementById('maySx').value;
-            nhapData.so_pick = document.getElementById('soPick').value;
-            nhapData.so_cuon = document.getElementById('soCuon').value;
-            nhapData.so_dong = document.getElementById('soDong').value;
-            nhapData.so_ban = document.getElementById('soBan').value;
-            nhapData.so_dau = document.getElementById('soDau').value;
-            nhapData.so_khuon = document.getElementById('soKhuon').value;
-            nhapData.khuon_sx = document.getElementById('khuonSx').value;
+        /* ======================= QC MULTI-ROW FORM ======================= */
+        let qcRowCounter = 0;
 
-            document.getElementById('reviewBox').innerHTML = `
-                <b>Mã lệnh:</b> ${nhapData.lenh_sx}<br>
-                <b>Công đoạn:</b> ${nhapData.cong_doan}<br>
-                <b>Số lượng đạt:</b> ${nhapData.so_luong_dat}<br>
-                <b>Số lượng lỗi:</b> ${nhapData.so_luong_loi || 0}<br>
-                <b>Diễn giải:</b> ${nhapData.dien_giai || '-'} <br>
-                <b>Mã nhân viên:</b> ${nhapData.nhan_vien_id || '-'}
+        function initQCForm() {
+            qcRowCounter = 0;
+            document.getElementById('qcRowsContainer').innerHTML = '';
+            addQCRow();
+        }
+
+        function addQCRow() {
+            qcRowCounter++;
+            const rowId = `qc-row-${qcRowCounter}`;
+
+            const rowHTML = `
+                <div class="qc-row" id="${rowId}">
+                    <div class="qc-row-header">
+                        <span class="qc-row-number">Lệnh #${qcRowCounter}</span>
+                        <button class="remove-qc-row" onclick="removeQCRow('${rowId}')" ${qcRowCounter === 1 ? 'style="display:none"' : ''}>×</button>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Mã lệnh *</label>
+                        <input type="text" class="form-control qc-lenh" data-row="${rowId}" placeholder="Nhập hoặc tìm mã lệnh" required>
+                        <div class="suggest-box" id="suggest-${rowId}"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-2">
+                            <label class="form-label">SL Đạt *</label>
+                            <input type="number" class="form-control qc-dat" data-row="${rowId}" required>
+                        </div>
+                        <div class="col-6 mb-2">
+                            <label class="form-label">SL Hư</label>
+                            <input type="number" class="form-control qc-hu" data-row="${rowId}" value="0">
+                        </div>
+                    </div>
+                </div>
             `;
+
+            document.getElementById('qcRowsContainer').insertAdjacentHTML('beforeend', rowHTML);
+
+            const lenhInput = document.querySelector(`input[data-row="${rowId}"].qc-lenh`);
+            const suggestDiv = document.getElementById(`suggest-${rowId}`);
+
+            let searchTimer;
+            lenhInput.addEventListener('input', function() {
+                const keyword = this.value.trim();
+                clearTimeout(searchTimer);
+
+                if (keyword.length < 2) {
+                    suggestDiv.innerHTML = '';
+                    return;
+                }
+
+                searchTimer = setTimeout(async () => {
+                    const res = await fetch(
+                        `{{ route('lenh-sx.search') }}?q=${encodeURIComponent(keyword)}`);
+                    const data = await res.json();
+
+                    if (data.length === 0) {
+                        suggestDiv.innerHTML =
+                            "<div class='p-2 text-muted'>Không tìm thấy mã lệnh</div>";
+                        return;
+                    }
+
+                    suggestDiv.innerHTML = data.map(item =>
+                        `<div class='suggest-item' data-value='${item.ma_lenh}'><b>${item.ma_lenh}</b> - ${item.description||''}</div>`
+                    ).join('');
+
+                    suggestDiv.querySelectorAll('.suggest-item').forEach(it => {
+                        it.onclick = () => {
+                            lenhInput.value = it.dataset.value;
+                            suggestDiv.innerHTML = '';
+                        };
+                    });
+                }, 400);
+            });
+        }
+
+        window.removeQCRow = function(rowId) {
+            document.getElementById(rowId).remove();
+        }
+
+        document.getElementById('addQCRow').onclick = () => {
+            addQCRow();
+        };
+
+        document.getElementById('confirmQCBtn').onclick = () => {
+            const rows = document.querySelectorAll('.qc-row');
+            const qcData = [];
+
+            for (let row of rows) {
+                const rowId = row.id;
+                const lenh = document.querySelector(`input[data-row="${rowId}"].qc-lenh`).value;
+                const dat = document.querySelector(`input[data-row="${rowId}"].qc-dat`).value;
+                const hu = document.querySelector(`input[data-row="${rowId}"].qc-hu`).value;
+
+                if (!lenh || !dat) {
+                    alert('Vui lòng điền đầy đủ Mã lệnh và SL Đạt cho tất cả các dòng!');
+                    return;
+                }
+
+                qcData.push({
+                    lenh_sx: lenh,
+                    so_luong_dat: dat,
+                    so_luong_loi: hu || 0
+                });
+            }
+
+            nhapData.nhan_vien_id = document.getElementById('nhanvienIdQC').value;
+            nhapData.dien_giai = document.getElementById('dienGiaiQC').value;
+            nhapData.qc_rows = qcData;
+
+            if (!nhapData.nhan_vien_id) {
+                alert('Vui lòng nhập Mã công nhân!');
+                return;
+            }
+
+            let reviewHTML = `
+                <b>Công đoạn:</b> ${nhapData.cong_doan}<br>
+                <b>Mã nhân viên:</b> ${nhapData.nhan_vien_id}<br>
+                <b>Ghi chú:</b> ${nhapData.dien_giai || '-'}<br>
+                <hr>
+                <b>Danh sách lệnh kiểm tra:</b><br>
+            `;
+
+            qcData.forEach((item, idx) => {
+                reviewHTML += `
+                    <div style="margin:10px 0; padding:10px; background:#f8f9fa; border-radius:5px;">
+                        ${idx + 1}. <b>${item.lenh_sx}</b><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;SL Đạt: ${item.so_luong_dat} | SL Hư: ${item.so_luong_loi}
+                    </div>
+                `;
+            });
+
+            document.getElementById('reviewBox').innerHTML = reviewHTML;
             showStep('step4');
         };
 
         document.getElementById('submitBtn').onclick = async () => {
             const formData = new FormData();
-            for (const k in nhapData) formData.append(k, nhapData[k]);
             const alertBox = document.getElementById('alertBox');
-            alertBox.innerHTML = `<div class='alert alert-info'>Đang lưu thông tin...</div>`;
+
+            // Check if this is QC multi-row submission
+            if (nhapData.qc_rows && nhapData.qc_rows.length > 0) {
+                // QC Multi-row submission
+                formData.append('cong_doan', nhapData.cong_doan);
+                formData.append('nhan_vien_id', nhapData.nhan_vien_id);
+                formData.append('dien_giai', nhapData.dien_giai || '');
+                formData.append('qc_rows', JSON.stringify(nhapData.qc_rows));
+                formData.append('is_qc_multi', '1');
+
+                alertBox.innerHTML =
+                    `<div class='alert alert-info'>Đang lưu ${nhapData.qc_rows.length} lệnh QC...</div>`;
+            } else {
+                // Normal single submission
+                for (const k in nhapData) {
+                    if (k !== 'qc_rows') formData.append(k, nhapData[k]);
+                }
+                alertBox.innerHTML = `<div class='alert alert-info'>Đang lưu thông tin...</div>`;
+            }
 
             const res = await fetch('{{ route('nhap-sx.submit') }}', {
                 method: 'POST',
@@ -517,22 +731,29 @@
             const data = await res.json();
 
             if (data.success) {
-                // 🖨️ GỌI IN NGAY
-                await fetch(`/nhap-sx/${data.data.id}/print-direct`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                });
+                // 🖨️ GỌI IN NGAY cho normal flow
+                if (data.data.id && !nhapData.qc_rows) {
+                    await fetch(`/nhap-sx/${data.data.id}/print-direct`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    });
+                }
+
+                const successMessage = nhapData.qc_rows ?
+                    `Đã lưu ${nhapData.qc_rows.length} lệnh QC thành công!` :
+                    `Phiếu số: <b>${data.data.id}</b>`;
+
                 Swal.fire({
                     icon: 'success',
                     title: 'ĐÃ LƯU THÀNH CÔNG',
                     html: `
                         <div style="font-size:20px;margin-top:10px">
-                            Phiếu số: <b>${data.data.id}</b>
+                            ${successMessage}
                         </div>
                         <div style="margin-top:15px;font-size:16px;color:#666">
-                            Gặp Quản lý sản xuất hoặc Tiến để in phiếu sản xuất.
+                            ${nhapData.qc_rows ? 'Các phiếu QC đã được in tự động.' : 'Gặp Quản lý sản xuất hoặc Tiến để in phiếu sản xuất.'}
                         </div>
                     `,
                     confirmButtonText: "ĐỒNG Ý",
@@ -541,7 +762,7 @@
                     allowEnterKey: false
                 }).then(() => {
                     document.body.innerHTML = `<div style="padding:30px;font-size:22px;text-align:center">
-                        <b>PHIẾU ĐÃ IN RA BÀN ANH THÁI LẤY</b><br>
+                        
                         NHẮN ANH THÁI HOẶC TIẾN SỐ <b>${data.data.id}</b> ĐỂ IN PHIẾU SẢN XUẤT KHỎI GHI TAY!<br>
                         
                         <br>
@@ -583,6 +804,7 @@
             showStep("step2");
             document.getElementById('searchLenh').value = "{{ $ma_lenh_url }}";
         @endif
+
         /* 🎤 SPEECH TO TEXT (VI TIẾNG VIỆT) */
         let recognizing = false;
         let recognition;
@@ -590,8 +812,8 @@
         if ("webkitSpeechRecognition" in window) {
             recognition = new webkitSpeechRecognition();
             recognition.lang = "vi-VN";
-            recognition.continuous = true; // Cho phép nghe liên tục
-            recognition.interimResults = true; // Hiển thị kết quả tạm thời
+            recognition.continuous = true;
+            recognition.interimResults = true;
 
             recognition.onstart = function() {
                 recognizing = true;
@@ -612,7 +834,6 @@
                 let interimText = "";
                 let finalText = "";
 
-                // Lấy tất cả kết quả
                 for (let i = event.resultIndex; i < event.results.length; i++) {
                     const transcript = event.results[i][0].transcript;
                     if (event.results[i].isFinal) {
@@ -622,12 +843,10 @@
                     }
                 }
 
-                // Nếu có text đã hoàn thành, thêm vào input
                 if (finalText) {
                     input.value = input.value ? input.value.trim() + " " + finalText.trim() : finalText.trim();
                 }
 
-                // Hiển thị trạng thái text tạm thời
                 if (interimText) {
                     document.getElementById("micStatus").innerHTML = `⏺ Đang nghe: <i>${interimText}</i>`;
                 } else if (recognizing) {
@@ -654,6 +873,32 @@
             } else {
                 recognition.stop();
             }
+        };
+
+        // Xử lý STEP 3 Normal form
+        document.getElementById('confirmBtn').onclick = () => {
+            nhapData.so_luong_dat = document.getElementById('soLuongDat').value;
+            nhapData.so_luong_loi = document.getElementById('soLuongLoi').value;
+            nhapData.dien_giai = document.getElementById('dienGiai').value;
+            nhapData.nhan_vien_id = document.getElementById('nhanvienId').value;
+            nhapData.may_sx = document.getElementById('maySx').value;
+            nhapData.so_pick = document.getElementById('soPick').value;
+            nhapData.so_cuon = document.getElementById('soCuon').value;
+            nhapData.so_dong = document.getElementById('soDong').value;
+            nhapData.so_ban = document.getElementById('soBan').value;
+            nhapData.so_dau = document.getElementById('soDau').value;
+            nhapData.so_khuon = document.getElementById('soKhuon').value;
+            nhapData.khuon_sx = document.getElementById('khuonSx').value;
+
+            document.getElementById('reviewBox').innerHTML = `
+                <b>Mã lệnh:</b> ${nhapData.lenh_sx}<br>
+                <b>Công đoạn:</b> ${nhapData.cong_doan}<br>
+                <b>Số lượng đạt:</b> ${nhapData.so_luong_dat}<br>
+                <b>Số lượng lỗi:</b> ${nhapData.so_luong_loi || 0}<br>
+                <b>Diễn giải:</b> ${nhapData.dien_giai || '-'} <br>
+                <b>Mã nhân viên:</b> ${nhapData.nhan_vien_id || '-'}
+            `;
+            showStep('step4');
         };
     </script>
 </body>

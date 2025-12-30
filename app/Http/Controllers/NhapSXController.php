@@ -27,9 +27,15 @@ class NhapSXController extends Controller
         ]);
     }
 
-    // Ghi log nhập SX (AJAX)
+    // Ghi log nhập SX (AJAX) - Updated để xử lý QC multi-row
     public function postNhapSX(Request $request)
     {
+        // Kiểm tra nếu là QC multi-row
+        if ($request->has('is_qc_multi') && $request->is_qc_multi == '1') {
+            return $this->handleQCMultiRow($request);
+        }
+
+        // Xử lý normal flow
         $validated = $request->validate([
             'lenh_sx' => 'required|string|max:50',
             'cong_doan' => 'required|string|max:10',
@@ -52,33 +58,141 @@ class NhapSXController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Đã lưu. Vui lòng gặp anh Thái để in phiếu!',
-                'data' => [
-        'id' => $log->id
-    ]
+            'data' => [
+                'id' => $log->id
+            ]
         ]);
     }
-public function printDirect($id)
-{
-    $log = NhapSXLog::findOrFail($id);
 
-    // ✅ đánh dấu đã in
-    $log->da_in = true;
-    $log->ngay_nhap = now();
-    $log->save();
+    // Xử lý QC Multi-row
+    private function handleQCMultiRow(Request $request)
+    {
+        try {
+            $request->validate([
+                'cong_doan' => 'required|string|max:10',
+                'nhan_vien_id' => 'required|string|max:20',
+                'dien_giai' => 'nullable|string|max:500',
+                'qc_rows' => 'required|json',
+            ]);
 
-    $pdfUrl = route('bao-cao-sx.pdf', ['id' => $id]);
+            $qcRows = json_decode($request->qc_rows, true);
 
-    // ✅ gọi node in
-    Http::timeout(1)->withHeaders([
-        'X-API-KEY' => 'IN_LBP2900_2025'
-    ])->post('http://192.168.1.14:3333/print', [
-        'pdf_url' => $pdfUrl,
-    ]);
+            if (empty($qcRows)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không có dữ liệu QC để lưu!'
+                ]);
+            }
 
-    return response()->json([
-        'success' => true
-    ]);
-}
+            $savedIds = [];
+            $errors = [];
+
+            DB::beginTransaction();
+
+            try {
+                foreach ($qcRows as $index => $row) {
+                    // Validate từng row
+                    if (empty($row['lenh_sx']) || empty($row['so_luong_dat'])) {
+                        $errors[] = "Dòng " . ($index + 1) . ": Thiếu mã lệnh hoặc số lượng đạt";
+                        continue;
+                    }
+
+                    // Tạo record
+                    $log = NhapSXLog::create([
+                        'lenh_sx' => $row['lenh_sx'],
+                        'cong_doan' => $request->cong_doan,
+                        'nhan_vien_id' => $request->nhan_vien_id,
+                        'so_luong_dat' => $row['so_luong_dat'],
+                        'so_luong_loi' => $row['so_luong_loi'] ?? 0,
+                        'dien_giai' => $request->dien_giai . ' (QC Multi-row)',
+                    ]);
+
+                    $savedIds[] = $log->id;
+
+                    // Tự động in phiếu cho mỗi lệnh
+                    try {
+                        $this->autoPrintQC($log->id);
+                    } catch (\Exception $e) {
+                        // Log lỗi in nhưng không dừng quá trình lưu
+                        \Log::warning("Không thể in phiếu QC ID: {$log->id}");
+                    }
+                }
+
+                DB::commit();
+
+                $message = count($savedIds) . ' lệnh QC đã được lưu thành công!';
+                if (!empty($errors)) {
+                    $message .= ' Có ' . count($errors) . ' lỗi: ' . implode(', ', $errors);
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'data' => [
+                        'id' => 'QC_' . implode('_', $savedIds),
+                        'saved_count' => count($savedIds),
+                        'saved_ids' => $savedIds
+                    ]
+                ]);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lưu QC: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    // Tự động in phiếu QC
+    private function autoPrintQC($id)
+    {
+        $log = NhapSXLog::findOrFail($id);
+
+        $log->da_in = true;
+        $log->ngay_nhap = now();
+        $log->save();
+
+        $pdfUrl = route('bao-cao-sx.pdf', ['id' => $id]);
+
+        // Gọi node in (không chờ response)
+        try {
+            Http::timeout(1)->withHeaders([
+                'X-API-KEY' => 'IN_LBP2900_2025'
+            ])->post('http://192.168.1.14:3333/print', [
+                'pdf_url' => $pdfUrl,
+            ]);
+        } catch (\Exception $e) {
+            // Bỏ qua lỗi in
+        }
+    }
+
+    public function printDirect($id)
+    {
+        $log = NhapSXLog::findOrFail($id);
+
+        // ✅ đánh dấu đã in
+        $log->da_in = true;
+        $log->ngay_nhap = now();
+        $log->save();
+
+        $pdfUrl = route('bao-cao-sx.pdf', ['id' => $id]);
+
+        // ✅ gọi node in
+        Http::timeout(1)->withHeaders([
+            'X-API-KEY' => 'IN_LBP2900_2025'
+        ])->post('http://192.168.1.14:3333/print', [
+            'pdf_url' => $pdfUrl,
+        ]);
+
+        return response()->json([
+            'success' => true
+        ]);
+    }
 
     // API tìm kiếm mã lệnh
     public function searchLenhSX(Request $request)
@@ -90,7 +204,7 @@ public function printDirect($id)
             ->where('ma_lenh', 'like', "%{$q}%")
             ->orWhere('description', 'like', "%{$q}%")
             ->orderBy('ma_lenh')
-            ->take(20)
+            ->take(5)
             ->get();
 
         return response()->json($data);
@@ -111,45 +225,36 @@ public function printDirect($id)
 
     // In lệnh SX (check đã in hôm nay)
     public function checkAndPrint($id)
-{
-    $log = NhapSXLog::findOrFail($id);
-    $today = Carbon::today()->toDateString();
+    {
+        $log = NhapSXLog::findOrFail($id);
+        $today = Carbon::today()->toDateString();
 
-    // $alreadyPrinted = NhapSXLog::where('lenh_sx', $log->lenh_sx)
-    //     ->whereDate('created_at', $today)
-    //     ->where('da_in', true)
-    //     ->exists();
-$alreadyPrinted = NhapSXLog::where('id', $id)
-    ->whereDate('created_at', $today)
-    ->where('da_in', true)
-    ->exists();
-    $forcePrint = request()->get('force', false);
+        $alreadyPrinted = NhapSXLog::where('id', $id)
+            ->whereDate('created_at', $today)
+            ->where('da_in', true)
+            ->exists();
+        
+        $forcePrint = request()->get('force', false);
 
-    if ($alreadyPrinted && !$forcePrint) {
+        if ($alreadyPrinted && !$forcePrint) {
+            return response()->json([
+                'success' => false,
+                'confirm' => true,
+                'message' => 'Phiếu đã in. Có muốn in lại ?'
+            ]);
+        }
+
+        // ✅ Cập nhật ngay_nhap và da_in **trước khi export**
+        $log->da_in = true;
+        $log->ngay_nhap = now();
+        $log->save();
+
         return response()->json([
-            'success' => false,
-            'confirm' => true,
-            'message' => 'Phiếu đã in. Có muốn in lại ?'
+            'success' => true,
+            'message' => '✅ In thành công!',
+            'pdf_url' => route('bao-cao-sx.pdf', ['id' => $id])
         ]);
     }
-// // sau khi save log + tạo pdf
-// Http::timeout(5)->withHeaders([
-//     'X-API-KEY' => 'IN_LBP2900_2025'
-// ])->post('http://192.168.1.14:3333/print', [
-//     'pdf_url' => route('bao-cao-sx.pdf', ['id' => $id]),
-// ]);
-    // ✅ Cập nhật ngay_nhap và da_in **trước khi export**
-    $log->da_in = true;
-    $log->ngay_nhap = now();
-    $log->save();
-
-    return response()->json([
-        'success' => true,
-        'message' => '✅ In thành công!',
-        'pdf_url' => route('bao-cao-sx.pdf', ['id' => $id])
-    ]);
-}
-
 
     // Import Excel
     public function importLenhSX(Request $request)
