@@ -8,6 +8,7 @@ return new class extends Migration {
     {
         Schema::create('nhap_sx_logs', function (Blueprint $table) {
             $table->id();
+            $table->string('so_phieu')->nullable();
             $table->datetime('ngay_nhap')->nullable();
             $table->boolean('da_in')->default(false)->nullable();
             $table->string('nhan_vien_id')->nullable();
