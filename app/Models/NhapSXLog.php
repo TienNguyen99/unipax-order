@@ -12,6 +12,7 @@ class NhapSXLog extends Model
 
     protected $table = 'nhap_sx_logs';
     protected $fillable = [
+        'so_phieu',
         'ngay_nhap',
         'lenh_sx',
         'cong_doan',

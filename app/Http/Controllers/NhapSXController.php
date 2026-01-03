@@ -90,6 +90,9 @@ class NhapSXController extends Controller
             DB::beginTransaction();
 
             try {
+                // 🔑 Tạo so_phieu duy nhất cho cả phiếu QC
+                $soPhieu = 'QC' . date('YmdHis');
+
                 foreach ($qcRows as $index => $row) {
                     // Validate từng row
                     if (empty($row['lenh_sx']) || empty($row['so_luong_dat'])) {
@@ -97,30 +100,38 @@ class NhapSXController extends Controller
                         continue;
                     }
 
-                    // Tạo record
+                    // Kết hợp ghi chú chung + ghi chú riêng
+                    $dienGiai = $request->dien_giai;
+                    if (!empty($row['dien_giai'])) {
+                        $dienGiai = $dienGiai ? $dienGiai . ' | ' . $row['dien_giai'] : $row['dien_giai'];
+                    }
+
+                    // Tạo record với so_phieu chung
                     $log = NhapSXLog::create([
+                        'so_phieu' => $soPhieu,
                         'lenh_sx' => $row['lenh_sx'],
                         'cong_doan' => $request->cong_doan,
                         'nhan_vien_id' => $request->nhan_vien_id,
                         'so_luong_dat' => $row['so_luong_dat'],
                         'so_luong_loi' => $row['so_luong_loi'] ?? 0,
-                        'dien_giai' => $request->dien_giai . ' (QC Multi-row)',
+                        'dien_giai' => $dienGiai,
                     ]);
 
                     $savedIds[] = $log->id;
-
-                    // Tự động in phiếu cho mỗi lệnh
-                    try {
-                        $this->autoPrintQC($log->id);
-                    } catch (\Exception $e) {
-                        // Log lỗi in nhưng không dừng quá trình lưu
-                        \Log::warning("Không thể in phiếu QC ID: {$log->id}");
-                    }
                 }
 
                 DB::commit();
 
-                $message = count($savedIds) . ' lệnh QC đã được lưu thành công!';
+                // 🖨️ In phiếu QC 1 lần duy nhất (sau khi tất cả records được lưu)
+                if (!empty($savedIds)) {
+                    try {
+                        $this->printQCPhieu($soPhieu);
+                    } catch (\Exception $e) {
+                        \Log::warning("Không thể in phiếu QC: {$soPhieu}");
+                    }
+                }
+
+                $message = count($savedIds) . ' lệnh QC đã được lưu thành công! (Phiếu: ' . $soPhieu . ')';
                 if (!empty($errors)) {
                     $message .= ' Có ' . count($errors) . ' lỗi: ' . implode(', ', $errors);
                 }
@@ -148,16 +159,21 @@ class NhapSXController extends Controller
         }
     }
 
-    // Tự động in phiếu QC
+    // Tự động in phiếu (chỉ cho normal SX, QC dùng printQCPhieu)
     private function autoPrintQC($id)
     {
         $log = NhapSXLog::findOrFail($id);
+
+        // ⏭️ Bỏ qua in tự động cho QC (sẽ in 1 lần duy nhất sau khi tất cả records được lưu)
+        if (strtoupper(trim($log->cong_doan ?? '')) === 'QC') {
+            return;
+        }
 
         $log->da_in = true;
         $log->ngay_nhap = now();
         $log->save();
 
-        $pdfUrl = route('bao-cao-sx.pdf', ['id' => $id]);
+        $pdfUrl = route('bao-cao-sx.pdf', ['identifier' => $log->id]);
 
         // Gọi node in (không chờ response)
         try {
@@ -171,6 +187,34 @@ class NhapSXController extends Controller
         }
     }
 
+    // In phiếu QC multi-row 1 lần duy nhất
+    private function printQCPhieu($soPhieu)
+    {
+        // Lấy 1 record để mark da_in cho tất cả
+        $logs = NhapSXLog::where('so_phieu', $soPhieu)->get();
+        
+        if ($logs->isNotEmpty()) {
+            // Mark tất cả records là đã in
+            NhapSXLog::where('so_phieu', $soPhieu)->update([
+                'da_in' => true,
+                'ngay_nhap' => now()
+            ]);
+
+            $pdfUrl = route('bao-cao-sx.pdf', ['identifier' => $soPhieu]);
+
+            // Gọi node in (không chờ response)
+            try {
+                Http::timeout(1)->withHeaders([
+                    'X-API-KEY' => 'IN_LBP2900_2025'
+                ])->post('http://192.168.1.14:3333/print', [
+                    'pdf_url' => $pdfUrl,
+                ]);
+            } catch (\Exception $e) {
+                // Bỏ qua lỗi in
+            }
+        }
+    }
+
     public function printDirect($id)
     {
         $log = NhapSXLog::findOrFail($id);
@@ -180,7 +224,9 @@ class NhapSXController extends Controller
         $log->ngay_nhap = now();
         $log->save();
 
-        $pdfUrl = route('bao-cao-sx.pdf', ['id' => $id]);
+        // Dùng so_phieu cho QC, dùng id cho normal
+        $identifier = strtoupper($log->cong_doan) === 'QC' ? $log->so_phieu : $log->id;
+        $pdfUrl = route('bao-cao-sx.pdf', ['identifier' => $identifier]);
 
         // ✅ gọi node in
         Http::timeout(1)->withHeaders([
@@ -249,10 +295,13 @@ class NhapSXController extends Controller
         $log->ngay_nhap = now();
         $log->save();
 
+        // Dùng so_phieu cho QC, dùng id cho normal
+        $identifier = strtoupper($log->cong_doan) === 'QC' ? $log->so_phieu : $log->id;
+
         return response()->json([
             'success' => true,
             'message' => '✅ In thành công!',
-            'pdf_url' => route('bao-cao-sx.pdf', ['id' => $id])
+            'pdf_url' => route('bao-cao-sx.pdf', ['identifier' => $identifier])
         ]);
     }
 
@@ -282,10 +331,20 @@ class NhapSXController extends Controller
         }
     }
 
-    // Xuất báo cáo PDF
-    public function exportBaoCaoPDF($id)
+    // Xuất báo cáo PDF (hỗ trợ cả id và so_phieu)
+    public function exportBaoCaoPDF($identifier)
     {
-        $exporter = new BaoCaoSXExport(null, $id);
+        // Kiểm tra identifier là id hay so_phieu
+        $log = null;
+        if (is_numeric($identifier)) {
+            // Là id
+            $log = NhapSXLog::findOrFail($identifier);
+        } else {
+            // Là so_phieu (QC...)
+            $log = NhapSXLog::where('so_phieu', $identifier)->firstOrFail();
+        }
+
+        $exporter = new BaoCaoSXExport(null, $log->id);
         $filePath = $exporter->exportToPDF();
 
         return response()->file($filePath, [

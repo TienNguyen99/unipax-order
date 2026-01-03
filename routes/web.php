@@ -35,8 +35,8 @@ Route::get('/nhap-sx/{ma_lenh}', [NhapSXController::class, 'showForm'])->name('n
 
 // Route import Excel (AJAX)
 Route::post('/lenh-sx/import', [NhapSXController::class, 'importLenhSX'])->name('lenh-sx.import');
-// Route xuất báo cáo PDF
-Route::get('/bao-cao-sx/pdf/{id}', [NhapSXController::class, 'exportBaoCaoPDF'])->name('bao-cao-sx.pdf');
+// Route xuất báo cáo PDF (support cả id và so_phieu)
+Route::get('/bao-cao-sx/pdf/{identifier}', [NhapSXController::class, 'exportBaoCaoPDF'])->name('bao-cao-sx.pdf');
 Route::post('/nhap-sx/{id}/print', [NhapSXController::class, 'checkAndPrint'])->name('nhap-sx.print');
 // in trực tiếp sau khi công nhân nhập
 Route::post('/nhap-sx/{id}/print-direct', [NhapSXController::class, 'printDirect'])

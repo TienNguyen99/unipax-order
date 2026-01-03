@@ -304,11 +304,9 @@
                 <div class="section-label">QC</div>
                 <div class="row">
                     <div class="col-6">
-                        <div class="work-card congdoan" data-value="KIỂM HÀNG" data-type="qc">KIỂM HÀNG</div>
+                        <div class="work-card congdoan" data-value="QC" data-type="qc">KIỂM HÀNG</div>
                     </div>
-                    <div class="col-6">
-                        <div class="work-card congdoan" data-value="ĐÓNG GÓI" data-type="qc">ĐÓNG GÓI</div>
-                    </div>
+
                 </div>
 
                 <button class="btn btn-secondary w-100 mt-4" id="back1">↩ Quay Lại</button>
@@ -595,6 +593,10 @@
                             <input type="number" class="form-control qc-hu" data-row="${rowId}" value="0">
                         </div>
                     </div>
+                    <div class="mb-2">
+                        <label class="form-label">Ghi chú</label>
+                        <input type="text" class="form-control qc-ghi-chu" data-row="${rowId}" placeholder="Ghi chú cho lệnh này">
+                    </div>
                 </div>
             `;
 
@@ -655,6 +657,7 @@
                 const lenh = document.querySelector(`input[data-row="${rowId}"].qc-lenh`).value;
                 const dat = document.querySelector(`input[data-row="${rowId}"].qc-dat`).value;
                 const hu = document.querySelector(`input[data-row="${rowId}"].qc-hu`).value;
+                const ghichu = document.querySelector(`input[data-row="${rowId}"].qc-ghi-chu`).value;
 
                 if (!lenh || !dat) {
                     alert('Vui lòng điền đầy đủ Mã lệnh và SL Đạt cho tất cả các dòng!');
@@ -664,7 +667,8 @@
                 qcData.push({
                     lenh_sx: lenh,
                     so_luong_dat: dat,
-                    so_luong_loi: hu || 0
+                    so_luong_loi: hu || 0,
+                    dien_giai: ghichu || ''
                 });
             }
 
@@ -698,57 +702,69 @@
             showStep('step4');
         };
 
+        let isSubmitting = false; // 🚫 Prevent double submit
+
         document.getElementById('submitBtn').onclick = async () => {
+            // ✋ Kiểm tra đang submit rồi
+            if (isSubmitting) return;
+
             const formData = new FormData();
             const alertBox = document.getElementById('alertBox');
+            const submitBtn = document.getElementById('submitBtn');
 
-            // Check if this is QC multi-row submission
-            if (nhapData.qc_rows && nhapData.qc_rows.length > 0) {
-                // QC Multi-row submission
-                formData.append('cong_doan', nhapData.cong_doan);
-                formData.append('nhan_vien_id', nhapData.nhan_vien_id);
-                formData.append('dien_giai', nhapData.dien_giai || '');
-                formData.append('qc_rows', JSON.stringify(nhapData.qc_rows));
-                formData.append('is_qc_multi', '1');
+            // Disable button & set flag
+            isSubmitting = true;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '⏳ Đang lưu...';
 
-                alertBox.innerHTML =
-                    `<div class='alert alert-info'>Đang lưu ${nhapData.qc_rows.length} lệnh QC...</div>`;
-            } else {
-                // Normal single submission
-                for (const k in nhapData) {
-                    if (k !== 'qc_rows') formData.append(k, nhapData[k]);
-                }
-                alertBox.innerHTML = `<div class='alert alert-info'>Đang lưu thông tin...</div>`;
-            }
+            try {
+                // Check if this is QC multi-row submission
+                if (nhapData.qc_rows && nhapData.qc_rows.length > 0) {
+                    // QC Multi-row submission
+                    formData.append('cong_doan', nhapData.cong_doan);
+                    formData.append('nhan_vien_id', nhapData.nhan_vien_id);
+                    formData.append('dien_giai', nhapData.dien_giai || '');
+                    formData.append('qc_rows', JSON.stringify(nhapData.qc_rows));
+                    formData.append('is_qc_multi', '1');
 
-            const res = await fetch('{{ route('nhap-sx.submit') }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                body: formData
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                // 🖨️ GỌI IN NGAY cho normal flow
-                if (data.data.id && !nhapData.qc_rows) {
-                    await fetch(`/nhap-sx/${data.data.id}/print-direct`, {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    });
+                    alertBox.innerHTML =
+                        `<div class='alert alert-info'>Đang lưu ${nhapData.qc_rows.length} lệnh QC...</div>`;
+                } else {
+                    // Normal single submission
+                    for (const k in nhapData) {
+                        if (k !== 'qc_rows') formData.append(k, nhapData[k]);
+                    }
+                    alertBox.innerHTML = `<div class='alert alert-info'>Đang lưu thông tin...</div>`;
                 }
 
-                const successMessage = nhapData.qc_rows ?
-                    `Đã lưu ${nhapData.qc_rows.length} lệnh QC thành công!` :
-                    `Phiếu số: <b>${data.data.id}</b>`;
+                const res = await fetch('{{ route('nhap-sx.submit') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                });
+                const data = await res.json();
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'ĐÃ LƯU THÀNH CÔNG',
-                    html: `
+                if (data.success) {
+                    // 🖨️ GỌI IN NGAY cho normal flow
+                    if (data.data.id && !nhapData.qc_rows) {
+                        await fetch(`/nhap-sx/${data.data.id}/print-direct`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        });
+                    }
+
+                    const successMessage = nhapData.qc_rows ?
+                        `Đã lưu ${nhapData.qc_rows.length} lệnh QC thành công!` :
+                        `Phiếu số: <b>${data.data.id}</b>`;
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ĐÃ LƯU THÀNH CÔNG',
+                        html: `
                         <div style="font-size:20px;margin-top:10px">
                             ${successMessage}
                         </div>
@@ -756,25 +772,41 @@
                             ${nhapData.qc_rows ? 'Các phiếu QC đã được in tự động.' : 'Gặp Quản lý sản xuất hoặc Tiến để in phiếu sản xuất.'}
                         </div>
                     `,
-                    confirmButtonText: "ĐỒNG Ý",
-                    allowOutsideClick: false,
-                    allowEscapeKey: false,
-                    allowEnterKey: false
-                }).then(() => {
-                    document.body.innerHTML = `<div style="padding:30px;font-size:22px;text-align:center">
+                        confirmButtonText: "ĐỒNG Ý",
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        allowEnterKey: false
+                    }).then(() => {
+                        document.body.innerHTML = `<div style="padding:30px;font-size:22px;text-align:center">
                         
                         NHẮN ANH THÁI HOẶC TIẾN SỐ <b>${data.data.id}</b> ĐỂ IN PHIẾU SẢN XUẤT KHỎI GHI TAY!<br>
                         
                         <br>
                         Bạn có thể đóng trang.
                     </div>`;
-                });
-            } else {
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi!',
+                        text: data.message,
+                    });
+                }
+
+                // ✅ Reset button state
+                isSubmitting = false;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '✅ LƯU PHIẾU';
+            } catch (e) {
+                console.error('Error:', e);
                 Swal.fire({
                     icon: 'error',
                     title: 'Lỗi!',
-                    text: data.message,
+                    text: 'Có lỗi xảy ra: ' + e.message,
                 });
+                isSubmitting = false;
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '✅ LƯU PHIẾU';
             }
         };
 
@@ -844,7 +876,8 @@
                 }
 
                 if (finalText) {
-                    input.value = input.value ? input.value.trim() + " " + finalText.trim() : finalText.trim();
+                    input.value = input.value ? input.value.trim() + " " + finalText.trim() : finalText
+                        .trim();
                 }
 
                 if (interimText) {
