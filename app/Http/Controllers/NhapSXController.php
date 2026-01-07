@@ -54,6 +54,14 @@ class NhapSXController extends Controller
         ]);
 
         $log = NhapSXLog::create($validated);
+        $khuVuc = $request->get('khu_vuc', 'khu_vuc_1');
+
+        // Gọi in tự động với khu_vuc
+        try {
+            $this->autoPrintQC($log->id, $khuVuc);
+        } catch (\Exception $e) {
+            \Log::warning("Không thể in: " . $e->getMessage());
+        }
 
         return response()->json([
             'success' => true,
@@ -125,7 +133,8 @@ class NhapSXController extends Controller
                 // 🖨️ In phiếu QC 1 lần duy nhất (sau khi tất cả records được lưu)
                 if (!empty($savedIds)) {
                     try {
-                        $this->printQCPhieu($soPhieu);
+                        $khuVuc = $request->get('khu_vuc', 'khu_vuc_1');
+                        $this->printQCPhieu($soPhieu, $khuVuc);
                     } catch (\Exception $e) {
                         \Log::warning("Không thể in phiếu QC: {$soPhieu}");
                     }
@@ -160,7 +169,7 @@ class NhapSXController extends Controller
     }
 
     // Tự động in phiếu (chỉ cho normal SX, QC dùng printQCPhieu)
-    private function autoPrintQC($id)
+    private function autoPrintQC($id, $khuVuc = 'khu_vuc_1')
     {
         $log = NhapSXLog::findOrFail($id);
 
@@ -181,6 +190,7 @@ class NhapSXController extends Controller
                 'X-API-KEY' => 'IN_LBP2900_2025'
             ])->post('http://192.168.1.14:3333/print', [
                 'pdf_url' => $pdfUrl,
+                'khu_vuc' => $khuVuc,
             ]);
         } catch (\Exception $e) {
             // Bỏ qua lỗi in
@@ -188,7 +198,7 @@ class NhapSXController extends Controller
     }
 
     // In phiếu QC multi-row 1 lần duy nhất
-    private function printQCPhieu($soPhieu)
+    private function printQCPhieu($soPhieu, $khuVuc = 'khu_vuc_1')
     {
         // Lấy 1 record để mark da_in cho tất cả
         $logs = NhapSXLog::where('so_phieu', $soPhieu)->get();
@@ -208,6 +218,7 @@ class NhapSXController extends Controller
                     'X-API-KEY' => 'IN_LBP2900_2025'
                 ])->post('http://192.168.1.14:3333/print', [
                     'pdf_url' => $pdfUrl,
+                    'khu_vuc' => $khuVuc,
                 ]);
             } catch (\Exception $e) {
                 // Bỏ qua lỗi in
@@ -215,9 +226,10 @@ class NhapSXController extends Controller
         }
     }
 
-    public function printDirect($id)
+    public function printDirect(Request $request, $id)
     {
         $log = NhapSXLog::findOrFail($id);
+        $khuVuc = $request->get('khu_vuc', 'khu_vuc_1');
 
         // ✅ đánh dấu đã in
         $log->da_in = true;
@@ -228,15 +240,24 @@ class NhapSXController extends Controller
         $identifier = strtoupper($log->cong_doan) === 'QC' ? $log->so_phieu : $log->id;
         $pdfUrl = route('bao-cao-sx.pdf', ['identifier' => $identifier]);
 
-        // ✅ gọi node in
-        Http::timeout(1)->withHeaders([
-            'X-API-KEY' => 'IN_LBP2900_2025'
-        ])->post('http://192.168.1.14:3333/print', [
-            'pdf_url' => $pdfUrl,
-        ]);
+        // ✅ gọi node in với khu_vuc
+        try {
+            Http::timeout(1)->withHeaders([
+                'X-API-KEY' => 'IN_LBP2900_2025'
+            ])->post('http://192.168.1.14:3333/print', [
+                'pdf_url' => $pdfUrl,
+                'khu_vuc' => $khuVuc,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi in: ' . $e->getMessage()
+            ]);
+        }
 
         return response()->json([
-            'success' => true
+            'success' => true,
+            'message' => 'In thành công!'
         ]);
     }
 
@@ -270,17 +291,18 @@ class NhapSXController extends Controller
     }
 
     // In lệnh SX (check đã in hôm nay)
-    public function checkAndPrint($id)
+    public function checkAndPrint(Request $request, $id)
     {
         $log = NhapSXLog::findOrFail($id);
         $today = Carbon::today()->toDateString();
+        $khuVuc = $request->get('khu_vuc', 'khu_vuc_1');
 
         $alreadyPrinted = NhapSXLog::where('id', $id)
             ->whereDate('created_at', $today)
             ->where('da_in', true)
             ->exists();
         
-        $forcePrint = request()->get('force', false);
+        $forcePrint = $request->get('force', false);
 
         if ($alreadyPrinted && !$forcePrint) {
             return response()->json([
@@ -297,6 +319,18 @@ class NhapSXController extends Controller
 
         // Dùng so_phieu cho QC, dùng id cho normal
         $identifier = strtoupper($log->cong_doan) === 'QC' ? $log->so_phieu : $log->id;
+
+        // Gọi node in với khu_vuc
+        try {
+            Http::timeout(1)->withHeaders([
+                'X-API-KEY' => 'IN_LBP2900_2025'
+            ])->post('http://192.168.1.14:3333/print', [
+                'pdf_url' => route('bao-cao-sx.pdf', ['identifier' => $identifier]),
+                'khu_vuc' => $khuVuc,
+            ]);
+        } catch (\Exception $e) {
+            // In tự động ở background, không cần return error
+        }
 
         return response()->json([
             'success' => true,
