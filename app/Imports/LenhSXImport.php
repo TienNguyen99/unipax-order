@@ -40,6 +40,7 @@ class LenhSXImport implements ToModel, WithHeadingRow, SkipsOnError
             'so_luong_dat' => $soLuong,
             'don_gia' => $donGia,
             'ngay_nhan' => now(),
+            
         ]);
     }
 

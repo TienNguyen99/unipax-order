@@ -68,6 +68,7 @@
                 opacity: 0;
                 transform: translateY(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -141,6 +142,7 @@
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
@@ -155,11 +157,15 @@
             position: relative;
             box-shadow: var(--shadow-xl);
             animation: slideUp 0.4s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         @media (min-width: 768px) {
             .modal-content-custom {
                 padding: 32px;
+                max-height: 85vh;
             }
         }
 
@@ -404,7 +410,7 @@
             border: 2px solid var(--border);
         }
 
-        #reviewBox > * {
+        #reviewBox>* {
             margin-bottom: 12px;
         }
 
@@ -490,16 +496,41 @@
         }
 
         /* UTILITIES */
-        .mb-2 { margin-bottom: 8px; }
-        .mb-3 { margin-bottom: 16px; }
-        .mb-4 { margin-bottom: 24px; }
-        .mt-2 { margin-top: 8px; }
-        .mt-3 { margin-top: 16px; }
-        .mt-4 { margin-top: 24px; }
+        .mb-2 {
+            margin-bottom: 8px;
+        }
 
-        .text-center { text-align: center; }
-        .text-secondary { color: var(--text-gray); }
-        .text-muted { color: var(--text-gray); }
+        .mb-3 {
+            margin-bottom: 16px;
+        }
+
+        .mb-4 {
+            margin-bottom: 24px;
+        }
+
+        .mt-2 {
+            margin-top: 8px;
+        }
+
+        .mt-3 {
+            margin-top: 16px;
+        }
+
+        .mt-4 {
+            margin-top: 24px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-secondary {
+            color: var(--text-gray);
+        }
+
+        .text-muted {
+            color: var(--text-gray);
+        }
 
         .alert {
             padding: 12px 16px;
@@ -530,6 +561,24 @@
             color: #78350f;
             border: 1px solid #fde68a;
         }
+
+        /* SCROLLBAR STYLING */
+        .modal-content-custom::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-content-custom::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .modal-content-custom::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        .modal-content-custom::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
     </style>
 </head>
 
@@ -542,11 +591,21 @@
 
         <!-- Import Section -->
         <div class="import-section">
-            <h5><i class="bi bi-upload"></i> Import Lệnh Sản Xuất</h5>
+            <h5><i class="bi bi-upload"></i> Import Dữ Liệu</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Loại Import</label>
+                <select id="importType" class="form-select">
+                    <option value="lenh-sx">Lệnh Sản Xuất (lenh_sx)</option>
+                    <option value="phieu-ve">Phiếu Về (phieu_ve)</option>
+                </select>
+            </div>
+
             <form id="importForm" enctype="multipart/form-data">
                 <input type="file" id="fileInput" name="file" accept=".xlsx,.xls" class="form-control mb-3"
                     required placeholder="Chọn file Excel">
-                <button type="submit" class="btn btn-primary w-100" style="padding: 10px; border-radius: 8px; border: none; background: var(--primary); color: white; font-weight: 600;">
+                <button type="submit" class="btn btn-primary w-100"
+                    style="padding: 10px; border-radius: 8px; border: none; background: var(--primary); color: white; font-weight: 600;">
                     <i class="bi bi-cloud-upload"></i> Import Excel
                 </button>
             </form>
@@ -576,12 +635,15 @@
                 <input type="text" id="searchLenh" placeholder="🔍 Nhập mã lệnh..." class="form-control mb-3">
                 <div id="suggestBox" class="suggest-box"></div>
 
-                <button class="btn-main" id="scanQRBtn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); margin-top: 16px;">
+                <button class="btn-main" id="scanQRBtn"
+                    style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); margin-top: 16px;">
                     <i class="bi bi-qr-code"></i> Quét Mã QR
                 </button>
 
-                <div id="qrReader" style="width:100%; display:none; border-radius: 12px; overflow: hidden;" class="mt-3"></div>
-                <button class="btn-main" id="stopScanBtn" style="display:none; background: var(--danger); margin-top: 16px;">
+                <div id="qrReader" style="width:100%; display:none; border-radius: 12px; overflow: hidden;"
+                    class="mt-3"></div>
+                <button class="btn-main" id="stopScanBtn"
+                    style="display:none; background: var(--danger); margin-top: 16px;">
                     <i class="bi bi-stop-circle"></i> Dừng Quét
                 </button>
             </div>
@@ -600,9 +662,9 @@
                     <label class="form-label"><i class="bi bi-geo-alt"></i> Chọn Khu Vực In *</label>
                     <select id="khuVucSelect" class="form-select" required>
                         <option value="">-- Chọn khu vực --</option>
-                        <option value="khu_vuc_1" selected>Khu vực 1</option>
-                        <option value="khu_vuc_2">Khu vực 2</option>
-                        <option value="khu_vuc_3">Khu vực 3</option>
+                        <option value="khu_vuc_1" selected>Máy in Kho</option>
+                        <option value="khu_vuc_2">Máy in Tiến</option>
+                        <option value="khu_vuc_3">Máy in Thái</option>
                     </select>
                 </div>
 
@@ -658,7 +720,8 @@
                 </div>
 
                 <div class="btn-group-custom">
-                    <button class="btn btn-secondary" id="back1"><i class="bi bi-arrow-left"></i> Quay Lại</button>
+                    <button class="btn btn-secondary" id="back1"><i class="bi bi-arrow-left"></i> Quay
+                        Lại</button>
                 </div>
             </div>
 
@@ -684,14 +747,16 @@
 
                 <div class="mb-3">
                     <label class="form-label"><i class="bi bi-exclamation-circle"></i> Số lượng lỗi</label>
-                    <input type="number" id="soLuongLoi" class="form-control" placeholder="Nhập số lượng lỗi" value="0">
+                    <input type="number" id="soLuongLoi" class="form-control" placeholder="Nhập số lượng lỗi"
+                        value="0">
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label"><i class="bi bi-chat-dots"></i> Ghi chú</label>
                     <div style="display:flex; gap:10px;">
                         <input type="text" id="dienGiai" class="form-control" placeholder="Nhập ghi chú">
-                        <button type="button" id="micBtn" class="btn" style="width:50px; background: var(--danger); color: white; border: none; border-radius: 8px; font-size: 1.2rem;">
+                        <button type="button" id="micBtn" class="btn"
+                            style="width:50px; background: var(--danger); color: white; border: none; border-radius: 8px; font-size: 1.2rem;">
                             <i class="bi bi-mic"></i>
                         </button>
                     </div>
@@ -738,8 +803,10 @@
                 </div>
 
                 <div class="btn-group-custom">
-                    <button class="btn btn-secondary" id="back2"><i class="bi bi-arrow-left"></i> Quay Lại</button>
-                    <button class="btn btn-success" id="confirmBtn"><i class="bi bi-check-circle"></i> Tiếp Tục</button>
+                    <button class="btn btn-secondary" id="back2"><i class="bi bi-arrow-left"></i> Quay
+                        Lại</button>
+                    <button class="btn btn-success" id="confirmBtn"><i class="bi bi-check-circle"></i> Tiếp
+                        Tục</button>
                 </div>
             </div>
 
@@ -770,13 +837,16 @@
                     <!-- Rows will be added here -->
                 </div>
 
-                <button class="toggle-extra" id="addQCRow" style="border: 1px solid var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); margin-bottom: 20px;">
+                <button class="toggle-extra" id="addQCRow"
+                    style="border: 1px solid var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); margin-bottom: 20px;">
                     <i class="bi bi-plus-circle"></i> Thêm Lệnh
                 </button>
 
                 <div class="btn-group-custom">
-                    <button class="btn btn-secondary" id="backQC"><i class="bi bi-arrow-left"></i> Quay Lại</button>
-                    <button class="btn btn-success" id="confirmQCBtn"><i class="bi bi-check-circle"></i> Tiếp Tục</button>
+                    <button class="btn btn-secondary" id="backQC"><i class="bi bi-arrow-left"></i> Quay
+                        Lại</button>
+                    <button class="btn btn-success" id="confirmQCBtn"><i class="bi bi-check-circle"></i> Tiếp
+                        Tục</button>
                 </div>
             </div>
 
@@ -795,7 +865,9 @@
 
                 <div class="btn-group-custom">
                     <button class="btn btn-secondary" id="back3"><i class="bi bi-pencil-square"></i> Sửa</button>
-                    <button class="btn btn-success" id="submitBtn" style="background: var(--success); color: white;"><i class="bi bi-check-circle"></i> Lưu</button>
+                    <button class="btn btn-success" id="submitBtn"
+                        style="background: var(--success); color: white;"><i class="bi bi-check-circle"></i>
+                        Lưu</button>
                 </div>
             </div>
         </div>
@@ -902,10 +974,12 @@
 
             if (extra.style.display === "none") {
                 extra.style.display = "block";
-                document.getElementById("toggleExtra").innerHTML = "<i class='bi bi-minus-circle'></i> Ẩn Thông Tin Chi Tiết";
+                document.getElementById("toggleExtra").innerHTML =
+                    "<i class='bi bi-minus-circle'></i> Ẩn Thông Tin Chi Tiết";
             } else {
                 extra.style.display = "none";
-                document.getElementById("toggleExtra").innerHTML = "<i class='bi bi-plus-circle'></i> Thêm Thông Tin Chi Tiết";
+                document.getElementById("toggleExtra").innerHTML =
+                    "<i class='bi bi-plus-circle'></i> Thêm Thông Tin Chi Tiết";
             }
         };
 
@@ -1157,7 +1231,7 @@
 
                     showAlert({
                         icon: 'success',
-                        title: '✅ ĐÃ LƯU THÀNH CÔNG',
+                        title: 'LƯU THÀNH CÔNG',
                         html: `
                         <div style="font-size:18px;margin-top:10px">
                             ${successMessage}
@@ -1174,7 +1248,7 @@
                         document.body.innerHTML = `<div style="padding:30px;font-size:18px;text-align:center;background: linear-gradient(135deg, var(--primary) 0%, #5b21b6 100%); color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center;">
                         
                         <div style="background: white; padding: 30px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15); color: var(--text-dark);">
-                            <div style="font-size: 3rem; margin-bottom: 20px;">✅</div>
+                            
                             <div style="font-weight: 700; margin-bottom: 15px;">NHẮN ANH THÁI HOẶC TIẾN SỐ <b style="color: var(--primary);">${data.data.id}</b></div>
                             <div style="font-size: 0.95rem; color: var(--text-gray);">ĐỂ IN PHIẾU SẢN XUẤT KHỎI GHI TAY</div>
                             <div style="margin-top: 20px; font-size: 0.9rem; color: var(--text-gray);">Bạn có thể đóng trang.</div>
@@ -1192,7 +1266,7 @@
                 // ✅ Reset button state
                 isSubmitting = false;
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '✅ LƯU PHIẾU';
+                submitBtn.innerHTML = 'LƯU PHIẾU';
             } catch (e) {
                 console.error('Error:', e);
                 showAlert({
@@ -1202,7 +1276,7 @@
                 });
                 isSubmitting = false;
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '✅ LƯU PHIẾU';
+                submitBtn.innerHTML = 'LƯU PHIẾU';
             }
         };
 
@@ -1211,8 +1285,17 @@
             e.preventDefault();
             const formData = new FormData(this);
             const result = document.getElementById('importResult');
+            const importType = document.getElementById('importType').value;
+
             result.innerHTML = `<div class='alert alert-info'>⏳ Đang import...</div>`;
-            const res = await fetch('{{ route('lenh-sx.import') }}', {
+
+            // Chọn route dựa vào loại import
+            let route = '{{ route('lenh-sx.import') }}';
+            if (importType === 'phieu-ve') {
+                route = '{{ route('phieu-ve.import') }}';
+            }
+
+            const res = await fetch(route, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -1275,7 +1358,8 @@
                 }
 
                 if (interimText) {
-                    document.getElementById("micStatus").innerHTML = `<i class='bi bi-mic-fill'></i> Đang nghe: <i>${interimText}</i>`;
+                    document.getElementById("micStatus").innerHTML =
+                        `<i class='bi bi-mic-fill'></i> Đang nghe: <i>${interimText}</i>`;
                 } else if (recognizing) {
                     document.getElementById("micStatus").innerHTML = "<i class='bi bi-mic-fill'></i> Đang nghe...";
                 }
@@ -1284,7 +1368,8 @@
             recognition.onerror = function(event) {
                 console.error("Speech recognition error:", event.error);
                 if (event.error === 'no-speech') {
-                    document.getElementById("micStatus").innerHTML = "<i class='bi bi-exclamation-circle'></i> Không nghe thấy giọng nói";
+                    document.getElementById("micStatus").innerHTML =
+                        "<i class='bi bi-exclamation-circle'></i> Không nghe thấy giọng nói";
                 }
             };
         } else {

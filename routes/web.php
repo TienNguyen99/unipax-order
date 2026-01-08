@@ -31,10 +31,12 @@ Route::get('/nhap-sx', [NhapSXController::class, 'showForm'])->name('nhap-sx.for
 Route::post('/nhap-sx', [NhapSXController::class, 'postNhapSX'])->name('nhap-sx.submit');
 Route::get('/nhap-sx/list', [NhapSXController::class, 'list'])->name('nhap-sx.list');
 Route::get('/lenh-sx/search', [NhapSXController::class, 'searchLenhSX'])->name('lenh-sx.search');
+Route::get('/phieu-ps/search', [NhapSXController::class, 'searchPhieuPs'])->name('phieu-ps.search');
 Route::get('/nhap-sx/{ma_lenh}', [NhapSXController::class, 'showForm'])->name('nhap-sx.ma-lenh');
 
 // Route import Excel (AJAX)
 Route::post('/lenh-sx/import', [NhapSXController::class, 'importLenhSX'])->name('lenh-sx.import');
+Route::post('/import-phieu-ve', [NhapSXController::class, 'importPhieuVe'])->name('phieu-ve.import');
 // Route xuất báo cáo PDF (support cả id và so_phieu)
 Route::get('/bao-cao-sx/pdf/{identifier}', [NhapSXController::class, 'exportBaoCaoPDF'])->name('bao-cao-sx.pdf');
 Route::post('/nhap-sx/{id}/print', [NhapSXController::class, 'checkAndPrint'])->name('nhap-sx.print');

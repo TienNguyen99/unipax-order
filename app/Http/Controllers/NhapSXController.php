@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\NhapSXLog;
 use App\Models\LenhSanXuat;
+use App\Models\PhieuVe;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\LenhSXImport;
+use App\Imports\PhieuVeImport;
 use Illuminate\Support\Facades\DB;
 use App\Exports\BaoCaoSXExport;
 use Carbon\Carbon;
@@ -277,6 +279,61 @@ class NhapSXController extends Controller
         return response()->json($data);
     }
 
+    // API tìm mã lệnh từ phiếu PS
+    public function searchPhieuPs(Request $request)
+    {
+        $q = trim($request->get('q', ''));
+        if ($q === '') return response()->json([]);
+
+        // Tìm phiếu về theo phieu_ps
+        $phieuVe = PhieuVe::where('phieu_ps', 'like', "%{$q}%")
+            ->first();
+
+        if (!$phieuVe) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy phiếu PS: ' . $q
+            ]);
+        }
+
+        // Lấy model_code (ma_hang) và vi_tri từ phiếu về
+        $modelCode = $phieuVe->ma_hang;
+        $viTri = $phieuVe->vi_tri;
+
+        // Tìm lenh_sx phù hợp: model_code = ma_hang AND don_gia = vi_tri
+        $query = LenhSanXuat::select('ma_lenh', 'description', 'model_code', 'don_gia', 'item_code');
+
+        if ($modelCode) {
+            $query->where('model_code', $modelCode);
+        }
+
+        if ($viTri) {
+            $query->where('don_gia', $viTri);
+        }
+
+        $lenhSX = $query->first();
+
+        if (!$lenhSX) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy lệnh SX cho model: ' . ($modelCode ?: 'N/A') . ' và vi trí: ' . ($viTri ?: 'N/A')
+            ]);
+        }
+
+        // Update ma_lenh vào phiếu về
+        $phieuVe->update(['ma_lenh' => $lenhSX->ma_lenh]);
+
+        return response()->json([
+            'success' => true,
+            'ma_lenh' => $lenhSX->ma_lenh,
+            'description' => $lenhSX->description,
+            'model_code' => $lenhSX->model_code,
+            'don_gia' => $lenhSX->don_gia,
+            'phieu_ps' => $phieuVe->phieu_ps,
+            'message' => 'Tìm thấy lệnh: ' . $lenhSX->ma_lenh
+        ]);
+    }
+
     // Hiển thị view danh sách (không cần $data)
     public function list()
     {
@@ -356,6 +413,51 @@ class NhapSXController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => '✅ Đã xóa dữ liệu cũ và import mới thành công!'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => '❌ Lỗi khi import: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    // Import Phiếu Về
+    public function importPhieuVe(Request $request)
+    {
+        try {
+            if (!$request->hasFile('file')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '⚠️ Không có file được tải lên.'
+                ]);
+            }
+
+            DB::table('phieu_ve')->truncate();
+            $importer = new PhieuVeImport();
+            Excel::import($importer, $request->file('file'));
+
+            $stats = $importer->getImportStats();
+            
+            $message = '✅ Import thành công!';
+            $message .= "\n📊 Tổng cộng: {$stats['imported_rows']} row được lưu";
+            if ($stats['failed_rows'] > 0) {
+                $message .= ", {$stats['failed_rows']} row lỗi";
+            }
+            
+            $details = '';
+            if (!empty($stats['failed_details'])) {
+                $details = "Các row bị lỗi:\n";
+                foreach ($stats['failed_details'] as $fail) {
+                    $details .= "- Dòng {$fail['row_number']} (PS: {$fail['so_phieu']}, Mã hàng: {$fail['ma_hang']}, Vị trí: {$fail['vi_tri']}): {$fail['error']}\n";
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'stats' => $stats,
+                'failed_details' => $details
             ]);
         } catch (\Exception $e) {
             return response()->json([
