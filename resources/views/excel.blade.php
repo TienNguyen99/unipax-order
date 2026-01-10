@@ -408,6 +408,12 @@
                                         href="https://1drv.ms/x/c/780111bcbe29311c/IQBm_Alq6pkKQJUyzGvuG8XsAR2zSCfvsqmw6v01L3RAATw?e=Phdhdi"
                                         target="_blank">2025 Từ 3512 - 3999</a></li>
                                 <li>🧩 <a
+                                        href="https://1drv.ms/x/c/780111bcbe29311c/IQCgdOW962jvQ60c6JnM3XexAXiCtePywcNh_Lotbbdubyw?e=l11zyj"
+                                        target="_blank">2025 Từ 4000 - 4700</a></li>
+
+
+
+                                <li>🧩 <a
                                         href="https://1drv.ms/x/c/780111bcbe29311c/EdrZO6-SkGBNq-aorfBftHgB1YhK_g97KsBob3_PD0dXUQ?e=0S0Fv4"
                                         target="_blank">2024 Từ 2157 - 2999</a></li>
 
@@ -540,9 +546,8 @@
                 shape: {
                     type: "image",
                     image: {
-                        src: "https://sf-static.upanhlaylink.com/img/image_20251230e1692fd1b1a91de40bb70aca4fe2c4cb.jpg",
-                        width: 100,
-                        height: 100
+                        src: "{{ asset('lixivn2.png') }}",
+
                     }
                 },
                 opacity: {
