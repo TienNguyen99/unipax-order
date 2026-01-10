@@ -21,9 +21,10 @@ const PRINTERS_CONFIG = {
         ip: '192.168.1.81'
     },
     'khu_vuc_2': {
-        name: '\\\\192.168.1.82\\Canon LBP2900',
+        name: 'KONICA MINOLTA 206',
         location: 'Khu vực 2',
-        ip: '192.168.1.82'
+        ip: '192.168.1.200',
+        port: 9100
     },
     'khu_vuc_3': {
         name: '\\\\192.168.1.83\\Canon LBP2900',

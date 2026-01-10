@@ -269,7 +269,7 @@ class NhapSXController extends Controller
         $q = trim($request->get('q', ''));
         if ($q === '') return response()->json([]);
 
-        $data = LenhSanXuat::select('ma_lenh', 'description')
+        $data = LenhSanXuat::select('ma_lenh', 'description', 'so_luong_dat')
             ->where('ma_lenh', 'like', "%{$q}%")
             ->orWhere('description', 'like', "%{$q}%")
             ->orderBy('ma_lenh')

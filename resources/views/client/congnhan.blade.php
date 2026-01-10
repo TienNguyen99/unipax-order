@@ -613,7 +613,7 @@
         </div>
 
         <button id="touchBtn" class="btn-main">
-            <i class="bi bi-play-circle-fill"></i> BẮTĐẦU NHẬP LIỆU
+            <i class="bi bi-play-circle-fill"></i> BẮT ĐẦU NHẬP LIỆU
         </button>
     </div>
 
@@ -743,6 +743,11 @@
                 <div class="mb-3">
                     <label class="form-label"><i class="bi bi-check-circle"></i> Số lượng đạt *</label>
                     <input type="number" id="soLuongDat" class="form-control" placeholder="Nhập số lượng" required>
+                    <div id="warningQuota" class="alert alert-warning mt-2" style="display:none;">
+                        <i class="bi bi-exclamation-triangle"></i> <strong>Cảnh báo:</strong> Số lượng nhập (<span
+                            id="warnDat">0</span>) đã bằng hoặc vượt quá số lượng đơn hàng (<span
+                            id="warnQuota">0</span>). Vui lòng kiểm tra lại!
+                    </div>
                 </div>
 
                 <div class="mb-3">
@@ -919,11 +924,13 @@
                     return;
                 }
                 suggestBox.innerHTML = data.map(item =>
-                    `<div class='suggest-item' data-value='${item.ma_lenh}'><b>${item.ma_lenh}</b> - ${item.description||''}</div>`
+                    `<div class='suggest-item' data-value='${item.ma_lenh}' data-quota='${item.so_luong_dat||0}'><b>${item.ma_lenh}</b> - ${item.description||''}</div>`
                 ).join('');
                 document.querySelectorAll('.suggest-item').forEach(it => {
                     it.onclick = () => {
                         nhapData.lenh_sx = it.dataset.value;
+                        nhapData.so_luong_don_hang = it.dataset.quota;
+                        document.getElementById('warnQuota').textContent = it.dataset.quota;
                         showStep('step2');
                     };
                 });
@@ -1211,20 +1218,6 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    // 🖨️ GỌI IN NGAY cho normal flow
-                    if (data.data.id && !nhapData.qc_rows) {
-                        await fetch(`/nhap-sx/${data.data.id}/print-direct`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                khu_vuc: khuVuc
-                            })
-                        });
-                    }
-
                     const successMessage = nhapData.qc_rows ?
                         `Đã lưu ${nhapData.qc_rows.length} lệnh QC thành công!` :
                         `Phiếu số: <b>${data.data.id}</b>`;
@@ -1412,6 +1405,22 @@
             `;
             showStep('step4');
         };
+
+        // Check số lượng đạt vs đơn hàng
+        document.getElementById('soLuongDat').addEventListener('input', function() {
+            const datValue = parseInt(this.value) || 0;
+            const quotaValue = parseInt(nhapData.so_luong_don_hang) || 0;
+            const warningDiv = document.getElementById('warningQuota');
+            const warnDatSpan = document.getElementById('warnDat');
+
+            warnDatSpan.textContent = datValue;
+
+            if (quotaValue > 0 && datValue >= quotaValue) {
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.style.display = 'none';
+            }
+        });
     </script>
 </body>
 
