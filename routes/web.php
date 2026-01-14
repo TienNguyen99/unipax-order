@@ -24,6 +24,9 @@ use App\Http\Controllers\NhapSXController;
 //Route for Excel Print
 Route::get('/excel', [ExcelPrintController::class, 'index'])->name('excel');
 Route::post('/print', [ExcelPrintController::class, 'print'])->name('excel.print');
+Route::get('/print/approval', [ExcelPrintController::class, 'approvalList'])->name('print.approval');
+Route::post('/print/approve/{id}', [ExcelPrintController::class, 'approve'])->name('print.approve');
+Route::delete('/print/delete/{id}', [ExcelPrintController::class, 'deleteLog'])->name('print.delete');
 
 //
 

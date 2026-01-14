@@ -361,6 +361,10 @@
                 Lệnh sản xuất cũ
             </button>
 
+            <button type="button" onclick="window.location.href='{{ route('print.approval') }}'">
+                📋 Duyệt Lệnh
+            </button>
+
             <div id="fileModal" class="modal" onclick="if(event.target.id==='fileModal'){this.style.display='none'}">
                 <div class="modal-content">
                     <h3 style="margin-bottom:20px; text-align:center;">

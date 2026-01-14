@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\PrintLog;
+use Carbon\Carbon;
 
 class ExcelPrintController extends Controller
 {
@@ -70,6 +72,14 @@ class ExcelPrintController extends Controller
             }
 
             if ($pdfPath && file_exists($pdfPath)) {
+                // Lưu vào database
+                PrintLog::create([
+                    'sheet_name' => $sheet,
+                    'printed_by' => auth()->user()->name ?? 'Không',
+                    'printed_at' => Carbon::now(),
+                    'pdf_path' => $pdfPath,
+                ]);
+
                 $relativePath = str_replace(public_path(), '', $pdfPath);
                 return view('excel', [
                     'sheets' => [],
@@ -83,6 +93,50 @@ class ExcelPrintController extends Controller
         } else {
             return back()->with('error', "Lỗi khi in: " . implode("\n", $output));
         }
+    }
+
+    /**
+     * Hiển thị list duyệt cho sếp
+     */
+    public function approvalList()
+    {
+        $logs = PrintLog::orderBy('printed_at', 'desc')->get();
+        return view('print-approval', ['logs' => $logs]);
+    }
+
+    /**
+     * Sếp duyệt & ký
+     */
+    public function approve(Request $request, $id)
+    {
+        $log = PrintLog::findOrFail($id);
+        
+        $log->update([
+            'is_approved' => true,
+            'approved_by' => auth()->user()->name ?? 'Sếp',
+            'signature' => $request->input('signature', 'Đã ký duyệt'),
+            'approved_at' => Carbon::now(),
+        ]);
+
+        return back()->with('success', "Đã duyệt lệnh {$log->sheet_name}");
+    }
+
+    /**
+     * Xóa lệnh
+     */
+    public function deleteLog($id)
+    {
+        $log = PrintLog::findOrFail($id);
+        $sheetName = $log->sheet_name;
+        
+        // Xóa file PDF nếu tồn tại
+        if ($log->pdf_path && file_exists($log->pdf_path)) {
+            unlink($log->pdf_path);
+        }
+        
+        $log->delete();
+        
+        return back()->with('success', "Đã xóa lệnh {$sheetName}");
     }
 
     /**
