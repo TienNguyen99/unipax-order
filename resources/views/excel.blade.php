@@ -346,7 +346,7 @@
     </style>
 </head>
 
-<body class="theme-noel">
+<body class="theme-tet">
     <!-- Nút chuyển theme -->
     <button class="theme-toggle" onclick="toggleTheme()">
         <span id="theme-icon">❄️</span>
@@ -361,9 +361,9 @@
                 Lệnh sản xuất cũ
             </button>
 
-            <button type="button" onclick="window.location.href='{{ route('print.approval') }}'">
+            <!-- <button type="button" onclick="window.location.href='{{ route('print.approval') }}'">
                 📋 Duyệt Lệnh
-            </button>
+            </button> -->
 
             <div id="fileModal" class="modal" onclick="if(event.target.id==='fileModal'){this.style.display='none'}">
                 <div class="modal-content">

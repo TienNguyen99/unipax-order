@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NhapSXController;
+use App\Http\Controllers\MaterialCalculatorController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -19,4 +20,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('/nhap-sx/latest', [NhapSXController::class, 'apiLatest'])->name('api.nhap-sx.latest');
+
+// Material Calculator API Route (for POST requests)
+Route::post('/material-calculator/fabric-requirement', [MaterialCalculatorController::class, 'calculateFabricRequirement'])
+    ->name('api.material-calculator.fabric-requirement');
 

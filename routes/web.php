@@ -9,6 +9,7 @@ use App\Http\Controllers\PhieuNhapController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\PhieuUnipaxController;
 use App\Http\Controllers\NhapSXController;
+use App\Http\Controllers\MaterialCalculatorController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,3 +47,7 @@ Route::post('/nhap-sx/{id}/print', [NhapSXController::class, 'checkAndPrint'])->
 // in trực tiếp sau khi công nhân nhập
 Route::post('/nhap-sx/{id}/print-direct', [NhapSXController::class, 'printDirect'])
     ->name('nhap-sx.print');
+
+// Material Calculator Routes
+Route::get('/material-calculator', [MaterialCalculatorController::class, 'show'])
+    ->name('material-calculator.show');
