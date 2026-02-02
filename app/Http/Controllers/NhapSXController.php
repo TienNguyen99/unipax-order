@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\NhapSXLog;
+use App\Models\PhanTichLog;
 use App\Models\LenhSanXuat;
 use App\Models\PhieuVe;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\LenhSXImport;
 use App\Imports\PhieuVeImport;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Exports\BaoCaoSXExport;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -29,12 +31,17 @@ class NhapSXController extends Controller
         ]);
     }
 
-    // Ghi log nhập SX (AJAX) - Updated để xử lý QC multi-row
+    // Ghi log nhập SX (AJAX) - Updated để xử lý QC multi-row và Phân Tích
     public function postNhapSX(Request $request)
     {
         // Kiểm tra nếu là QC multi-row
         if ($request->has('is_qc_multi') && $request->is_qc_multi == '1') {
             return $this->handleQCMultiRow($request);
+        }
+
+        // Kiểm tra nếu là Phân Tích
+        if ($request->has('is_phan_tich') && $request->is_phan_tich == '1') {
+            return $this->handlePhanTich($request);
         }
 
         // Xử lý normal flow
@@ -56,13 +63,13 @@ class NhapSXController extends Controller
         ]);
 
         $log = NhapSXLog::create($validated);
-        $khuVuc = $request->get('khu_vuc', 'khu_vuc_1');
+        $khuVuc = $request->get('khu_vuc', 'khu_vuc_3');
 
         // Gọi in tự động với khu_vuc
         try {
             $this->autoPrintQC($log->id, $khuVuc);
         } catch (\Exception $e) {
-            \Log::warning("Không thể in: " . $e->getMessage());
+            Log::warning("Không thể in: " . $e->getMessage());
         }
 
         return response()->json([
@@ -135,10 +142,10 @@ class NhapSXController extends Controller
                 // 🖨️ In phiếu QC 1 lần duy nhất (sau khi tất cả records được lưu)
                 if (!empty($savedIds)) {
                     try {
-                        $khuVuc = $request->get('khu_vuc', 'khu_vuc_1');
+                        $khuVuc = $request->get('khu_vuc', 'khu_vuc_3');
                         $this->printQCPhieu($soPhieu, $khuVuc);
                     } catch (\Exception $e) {
-                        \Log::warning("Không thể in phiếu QC: {$soPhieu}");
+                        Log::warning("Không thể in phiếu QC: {$soPhieu}");
                     }
                 }
 
@@ -170,8 +177,114 @@ class NhapSXController extends Controller
         }
     }
 
+    // Xử lý Phân Tích - nhập chi tiết nguyên liệu
+    private function handlePhanTich(Request $request)
+    {
+        try {
+            $request->validate([
+                'lenh_sx' => 'required|string|max:50',
+                'nhan_vien_id' => 'required|string|max:20',
+                'dien_giai' => 'nullable|string|max:500',
+                'ingredients_data' => 'required|json',
+            ]);
+
+            $ingredientsData = json_decode($request->ingredients_data, true);
+
+            if (empty($ingredientsData)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không có dữ liệu nguyên liệu để lưu!'
+                ]);
+            }
+
+            // Validate dữ liệu nguyên liệu
+            foreach ($ingredientsData as $index => $ingredient) {
+                if (empty($ingredient['material_name']) || empty($ingredient['definition_unit'])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Dòng ' . ($index + 1) . ': Thiếu tên nguyên liệu hoặc định mức!'
+                    ]);
+                }
+            }
+
+            DB::beginTransaction();
+
+            try {
+                // Tạo so_phieu duy nhất
+                $soPhieu = 'PT' . date('YmdHis');
+
+                // Tạo record phân tích
+                $log = PhanTichLog::create([
+                    'so_phieu' => $soPhieu,
+                    'lenh_sx' => $request->lenh_sx,
+                    'nhan_vien_id' => $request->nhan_vien_id,
+                    'ingredients' => $ingredientsData,
+                    'dien_giai' => $request->dien_giai,
+                ]);
+
+                DB::commit();
+
+                // In phiếu phân tích
+                try {
+                    $khuVuc = $request->get('khu_vuc', 'khu_vuc_3');
+                    $this->printPhanTichPhieu($soPhieu, $khuVuc);
+                } catch (\Exception $e) {
+                    Log::warning("Không thể in phiếu phân tích: {$soPhieu}");
+                }
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Phân tích đã được lưu thành công! (Phiếu: ' . $soPhieu . ')',
+                    'data' => [
+                        'id' => $log->id,
+                        'so_phieu' => $soPhieu,
+                    ]
+                ]);
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                throw $e;
+            }
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lưu phân tích: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    // In phiếu phân tích
+    private function printPhanTichPhieu($soPhieu, $khuVuc = 'khu_vuc_3')
+    {
+        $log = PhanTichLog::where('so_phieu', $soPhieu)->first();
+
+        if (!$log) {
+            return;
+        }
+
+        $log->da_in = true;
+        $log->ngay_nhap = now();
+        $log->save();
+
+        // TODO: Tạo route và export PDF cho phân tích
+        // $pdfUrl = route('phan-tich.pdf', ['identifier' => $soPhieu]);
+
+        // Gọi node in (không chờ response)
+        try {
+            // Http::timeout(1)->withHeaders([
+            //     'X-API-KEY' => 'IN_LBP2900_2025'
+            // ])->post('http://192.168.1.14:3333/print', [
+            //     'pdf_url' => $pdfUrl,
+            //     'khu_vuc' => $khuVuc,
+            // ]);
+        } catch (\Exception $e) {
+            // Bỏ qua lỗi in
+        }
+    }
+
     // Tự động in phiếu (chỉ cho normal SX, QC dùng printQCPhieu)
-    private function autoPrintQC($id, $khuVuc = 'khu_vuc_1')
+    private function autoPrintQC($id, $khuVuc = 'khu_vuc_3')
     {
         $log = NhapSXLog::findOrFail($id);
 
@@ -200,7 +313,7 @@ class NhapSXController extends Controller
     }
 
     // In phiếu QC multi-row 1 lần duy nhất
-    private function printQCPhieu($soPhieu, $khuVuc = 'khu_vuc_1')
+    private function printQCPhieu($soPhieu, $khuVuc = 'khu_vuc_3')
     {
         // Lấy 1 record để mark da_in cho tất cả
         $logs = NhapSXLog::where('so_phieu', $soPhieu)->get();
@@ -231,7 +344,7 @@ class NhapSXController extends Controller
     public function printDirect(Request $request, $id)
     {
         $log = NhapSXLog::findOrFail($id);
-        $khuVuc = $request->get('khu_vuc', 'khu_vuc_1');
+        $khuVuc = $request->get('khu_vuc', 'khu_vuc_3');
 
         // ✅ đánh dấu đã in
         $log->da_in = true;
@@ -352,7 +465,7 @@ class NhapSXController extends Controller
     {
         $log = NhapSXLog::findOrFail($id);
         $today = Carbon::today()->toDateString();
-        $khuVuc = $request->get('khu_vuc', 'khu_vuc_1');
+        $khuVuc = $request->get('khu_vuc', 'khu_vuc_3');
 
         $alreadyPrinted = NhapSXLog::where('id', $id)
             ->whereDate('created_at', $today)

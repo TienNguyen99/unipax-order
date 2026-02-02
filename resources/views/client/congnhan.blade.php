@@ -662,9 +662,9 @@
                     <label class="form-label"><i class="bi bi-geo-alt"></i> Chọn Khu Vực In *</label>
                     <select id="khuVucSelect" class="form-select" required>
                         <option value="">-- Chọn khu vực --</option>
-                        <option value="khu_vuc_1" selected>Máy in Kho</option>
+                        <option value="khu_vuc_1">Máy in Kho</option>
                         <option value="khu_vuc_2">Máy in Tiến</option>
-                        <option value="khu_vuc_3">Máy in Thái</option>
+                        <option value="khu_vuc_3" selected>Máy in Thái</option>
                     </select>
                 </div>
 
@@ -716,6 +716,13 @@
                 <div class="row g-2">
                     <div class="col-6 col-sm-6">
                         <div class="work-card congdoan" data-value="QC" data-type="qc">KIỂM HÀNG</div>
+                    </div>
+                </div>
+
+                <div class="section-label mt-4"><i class="bi bi-flask"></i> Phân Tích</div>
+                <div class="row g-2">
+                    <div class="col-6 col-sm-6">
+                        <div class="work-card congdoan" data-value="PHÂN TÍCH" data-type="phan_tich">PHÂN TÍCH</div>
                     </div>
                 </div>
 
@@ -851,6 +858,46 @@
                     <button class="btn btn-secondary" id="backQC"><i class="bi bi-arrow-left"></i> Quay
                         Lại</button>
                     <button class="btn btn-success" id="confirmQCBtn"><i class="bi bi-check-circle"></i> Tiếp
+                        Tục</button>
+                </div>
+            </div>
+
+            <!-- STEP 3C: Form Phân Tích -->
+            <div id="step3phan" class="step">
+                <div class="step-progress">
+                    <div class="step-dot active"></div>
+                    <div class="step-dot active"></div>
+                    <div class="step-dot active"></div>
+                    <div class="step-dot"></div>
+                </div>
+                <h4 class="step-title"><i class="bi bi-flask"></i> Bước 3: Nhập Liệu Phân Tích</h4>
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-person-badge"></i> Mã (tên) công nhân *</label>
+                    <input type="text" id="nhanvienIdPhan" class="form-control" placeholder="VD: CN001" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="bi bi-chat-dots"></i> Ghi chú</label>
+                    <input type="text" id="dienGiaiPhan" class="form-control" placeholder="Ghi chú chung">
+                </div>
+
+                <hr style="margin: 20px 0; border-top: 1px solid var(--border);">
+                <h5 class="mb-3"><i class="bi bi-list-check"></i> Danh sách nguyên liệu</h5>
+
+                <div id="ingredientsContainer">
+                    <!-- Ingredients will be added here -->
+                </div>
+
+                <button class="toggle-extra" id="addIngredient"
+                    style="border: 1px solid var(--success); color: var(--success); background: rgba(16, 185, 129, 0.05); margin-bottom: 20px;">
+                    <i class="bi bi-plus-circle"></i> Thêm Nguyên Liệu
+                </button>
+
+                <div class="btn-group-custom">
+                    <button class="btn btn-secondary" id="backPhan"><i class="bi bi-arrow-left"></i> Quay
+                        Lại</button>
+                    <button class="btn btn-success" id="confirmPhanBtn"><i class="bi bi-check-circle"></i> Tiếp
                         Tục</button>
                 </div>
             </div>
@@ -999,6 +1046,10 @@
                     // QC flow - show multi-row form
                     showStep('step3qc');
                     initQCForm();
+                } else if (type === 'phan_tich') {
+                    // Phân Tích flow
+                    showStep('step3phan');
+                    initPhanTichForm();
                 } else {
                     // Normal flow
                     showStep('step3');
@@ -1011,11 +1062,14 @@
         document.getElementById('back3').onclick = () => {
             if (nhapData.qc_rows) {
                 showStep('step3qc');
+            } else if (nhapData.ingredients) {
+                showStep('step3phan');
             } else {
                 showStep('step3');
             }
         };
         document.getElementById('backQC').onclick = () => showStep('step2');
+        document.getElementById('backPhan').onclick = () => showStep('step2');
 
         /* ======================= QC MULTI-ROW FORM ======================= */
         let qcRowCounter = 0;
@@ -1160,6 +1214,99 @@
             showStep('step4');
         };
 
+        /* ======================= PHÂN TÍCH FORM ======================= */
+        let ingredientCounter = 0;
+
+        function initPhanTichForm() {
+            ingredientCounter = 0;
+            document.getElementById('ingredientsContainer').innerHTML = '';
+            addIngredient();
+        }
+
+        function addIngredient() {
+            ingredientCounter++;
+            const rowId = `ingredient-${ingredientCounter}`;
+
+            const rowHTML = `
+                <div class="qc-row" id="${rowId}">
+                    <div class="qc-row-header">
+                        <span class="qc-row-number"><i class="bi bi-list-ol"></i> Nguyên liệu #${ingredientCounter}</span>
+                        <button class="remove-qc-row" onclick="removeIngredient('${rowId}')" ${ingredientCounter === 1 ? 'style="display:none"' : ''}>×</button>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label"><i class="bi bi-box-seam"></i> Tên nguyên liệu *</label>
+                        <input type="text" class="form-control material-name" data-row="${rowId}" placeholder="VD: Vải cotton, sợi đỏ..." required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label"><i class="bi bi-calculator"></i> Định mức *</label>
+                        <input type="text" class="form-control material-unit" data-row="${rowId}" placeholder="VD: 100g/pc, 50m/pc..." required>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('ingredientsContainer').insertAdjacentHTML('beforeend', rowHTML);
+        }
+
+        window.removeIngredient = function(rowId) {
+            document.getElementById(rowId).remove();
+        }
+
+        document.getElementById('addIngredient').onclick = () => {
+            addIngredient();
+        };
+
+        document.getElementById('confirmPhanBtn').onclick = () => {
+            const rows = document.querySelectorAll('.qc-row');
+            const ingredientsData = [];
+
+            for (let row of rows) {
+                const rowId = row.id;
+                const materialName = document.querySelector(`input[data-row="${rowId}"].material-name`).value;
+                const materialUnit = document.querySelector(`input[data-row="${rowId}"].material-unit`).value;
+
+                if (!materialName || !materialUnit) {
+                    alert('Vui lòng điền đầy đủ Tên nguyên liệu và Định mức cho tất cả các dòng!');
+                    return;
+                }
+
+                ingredientsData.push({
+                    material_name: materialName,
+                    definition_unit: materialUnit
+                });
+            }
+
+            nhapData.nhan_vien_id = document.getElementById('nhanvienIdPhan').value;
+            nhapData.dien_giai = document.getElementById('dienGiaiPhan').value;
+            nhapData.ingredients = ingredientsData;
+
+            if (!nhapData.nhan_vien_id) {
+                alert('Vui lòng nhập Mã công nhân!');
+                return;
+            }
+
+            let reviewHTML = `
+                <b>Mã lệnh:</b> ${nhapData.lenh_sx}<br>
+                <b>Công đoạn:</b> ${nhapData.cong_doan}<br>
+                <b>Mã nhân viên:</b> ${nhapData.nhan_vien_id}<br>
+                <b>Ghi chú:</b> ${nhapData.dien_giai || '-'}<br>
+                <hr>
+                <b>Danh sách nguyên liệu:</b><br>
+            `;
+
+            ingredientsData.forEach((item, idx) => {
+                reviewHTML += `
+                    <div style="margin:10px 0; padding:10px; background:#f8f9fa; border-radius:5px;">
+                        ${idx + 1}. <b>${item.material_name}</b><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;Định mức: ${item.definition_unit}
+                    </div>
+                `;
+            });
+
+            document.getElementById('reviewBox').innerHTML = reviewHTML;
+            showStep('step4');
+        };
+
+
         let isSubmitting = false; // 🚫 Prevent double submit
 
         document.getElementById('submitBtn').onclick = async () => {
@@ -1199,10 +1346,21 @@
 
                     alertBox.innerHTML =
                         `<div class='alert alert-info'>Đang lưu ${nhapData.qc_rows.length} lệnh QC...</div>`;
+                } else if (nhapData.ingredients && nhapData.ingredients.length > 0) {
+                    // Phân Tích submission
+                    formData.append('lenh_sx', nhapData.lenh_sx);
+                    formData.append('nhan_vien_id', nhapData.nhan_vien_id);
+                    formData.append('dien_giai', nhapData.dien_giai || '');
+                    formData.append('ingredients_data', JSON.stringify(nhapData.ingredients));
+                    formData.append('is_phan_tich', '1');
+                    formData.append('khu_vuc', khuVuc);
+
+                    alertBox.innerHTML =
+                        `<div class='alert alert-info'>Đang lưu ${nhapData.ingredients.length} nguyên liệu...</div>`;
                 } else {
                     // Normal single submission
                     for (const k in nhapData) {
-                        if (k !== 'qc_rows') formData.append(k, nhapData[k]);
+                        if (k !== 'qc_rows' && k !== 'ingredients') formData.append(k, nhapData[k]);
                     }
                     formData.append('khu_vuc', khuVuc);
                     alertBox.innerHTML = `<div class='alert alert-info'>Đang lưu thông tin...</div>`;
@@ -1220,6 +1378,8 @@
                 if (data.success) {
                     const successMessage = nhapData.qc_rows ?
                         `Đã lưu ${nhapData.qc_rows.length} lệnh QC thành công!` :
+                        nhapData.ingredients ?
+                        `Đã lưu ${nhapData.ingredients.length} nguyên liệu thành công!` :
                         `Phiếu số: <b>${data.data.id}</b>`;
 
                     showAlert({
@@ -1230,7 +1390,8 @@
                             ${successMessage}
                         </div>
                         <div style="margin-top:15px;font-size:14px;color:#666">
-                            ${nhapData.qc_rows ? '✓ Các phiếu QC đã được in tự động.' : '✓ Gặp Quản lý sản xuất hoặc Tiến để in phiếu sản xuất.'}
+                            ${nhapData.qc_rows ? '✓ Các phiếu QC đã được in tự động.' : nhapData.ingredients ? '✓ Phân tích đã được lưu.' : '✓ Gặp Quản lý sản xuất hoặc Tiến để in phiếu sản xuất.'}
+
                         </div>
                     `,
                         confirmButtonText: "ĐÓNG",
