@@ -456,7 +456,8 @@ class NhapSXController extends Controller
     // API trả dữ liệu JSON
     public function apiLatest()
     {
-        $data = NhapSXLog::orderBy('created_at', 'desc')->get();
+        // $data = NhapSXLog::orderBy('created_at', 'desc')->get();
+        $data = NhapSXLog::orderBy('id', 'desc')->get();
         return response()->json($data);
     }
 

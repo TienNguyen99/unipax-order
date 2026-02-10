@@ -89,8 +89,8 @@ class BaoCaoSXExport
             ->get();
 
         // Fill header info
-        $sheet->setCellValue('J3', $log->so_phieu ?? 'QC-' . date('dmY'));
-        $sheet->setCellValue('J33', $log->so_phieu ?? 'QC-' . date('dmY'));
+        $sheet->setCellValue('J3', 'QC-' . $log->created_at->format('dmY') . '-' . $log->so_phieu);
+        $sheet->setCellValue('J33', 'QC-' . $log->created_at->format('dmY') . '-' . $log->so_phieu);
         $sheet->setCellValue('I21', $log->created_at->format('d/m/Y'));
         $sheet->setCellValue('I51', $log->created_at->format('d/m/Y'));
         $sheet->setCellValue('F26', $log->nhan_vien_id);
