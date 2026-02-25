@@ -1313,7 +1313,7 @@
             // ✋ Kiểm tra đang submit rồi
             if (isSubmitting) return;
 
-            const formData = new FormData();
+            let payload = {};
             const alertBox = document.getElementById('alertBox');
             const submitBtn = document.getElementById('submitBtn');
             const khuVuc = document.getElementById('khuVucSelect').value;
@@ -1336,42 +1336,50 @@
             try {
                 // Check if this is QC multi-row submission
                 if (nhapData.qc_rows && nhapData.qc_rows.length > 0) {
-                    // QC Multi-row submission
-                    formData.append('cong_doan', nhapData.cong_doan);
-                    formData.append('nhan_vien_id', nhapData.nhan_vien_id);
-                    formData.append('dien_giai', nhapData.dien_giai || '');
-                    formData.append('qc_rows', JSON.stringify(nhapData.qc_rows));
-                    formData.append('is_qc_multi', '1');
-                    formData.append('khu_vuc', khuVuc);
+                    // QC Multi-row submission - gửi JSON
+                    payload = {
+                        cong_doan: nhapData.cong_doan,
+                        nhan_vien_id: nhapData.nhan_vien_id,
+                        dien_giai: nhapData.dien_giai || '',
+                        qc_rows: nhapData.qc_rows,
+                        is_qc_multi: '1',
+                        khu_vuc: khuVuc,
+                        _token: '{{ csrf_token() }}'
+                    };
 
                     alertBox.innerHTML =
                         `<div class='alert alert-info'>Đang lưu ${nhapData.qc_rows.length} lệnh QC...</div>`;
                 } else if (nhapData.ingredients && nhapData.ingredients.length > 0) {
-                    // Phân Tích submission
-                    formData.append('lenh_sx', nhapData.lenh_sx);
-                    formData.append('nhan_vien_id', nhapData.nhan_vien_id);
-                    formData.append('dien_giai', nhapData.dien_giai || '');
-                    formData.append('ingredients_data', JSON.stringify(nhapData.ingredients));
-                    formData.append('is_phan_tich', '1');
-                    formData.append('khu_vuc', khuVuc);
+                    // Phân Tích submission - gửi JSON
+                    payload = {
+                        lenh_sx: nhapData.lenh_sx,
+                        nhan_vien_id: nhapData.nhan_vien_id,
+                        dien_giai: nhapData.dien_giai || '',
+                        ingredients_data: nhapData.ingredients,
+                        is_phan_tich: '1',
+                        khu_vuc: khuVuc,
+                        _token: '{{ csrf_token() }}'
+                    };
 
                     alertBox.innerHTML =
                         `<div class='alert alert-info'>Đang lưu ${nhapData.ingredients.length} nguyên liệu...</div>`;
                 } else {
                     // Normal single submission
-                    for (const k in nhapData) {
-                        if (k !== 'qc_rows' && k !== 'ingredients') formData.append(k, nhapData[k]);
-                    }
-                    formData.append('khu_vuc', khuVuc);
+                    payload = {...nhapData};
+                    delete payload.qc_rows;
+                    delete payload.ingredients;
+                    payload.khu_vuc = khuVuc;
+                    payload._token = '{{ csrf_token() }}';
                     alertBox.innerHTML = `<div class='alert alert-info'>Đang lưu thông tin...</div>`;
                 }
 
                 const res = await fetch('{{ route('nhap-sx.submit') }}', {
                     method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    body: formData
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
 

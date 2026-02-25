@@ -11,7 +11,8 @@ try:
     pythoncom.CoInitialize()
     excel = win32com.client.GetActiveObject("Excel.Application")
     # wb = excel.Workbooks("Triển khai đơn hàng từ lệnh 1000 2025.xlsx")
-    wb = excel.Workbooks("LinkDonHang-2.xlsx")
+    # wb = excel.Workbooks("LinkDonHang-2.xlsx")
+    wb = excel.Workbooks("LINK-LENHSANXUAT.xlsx")
     ws = wb.Sheets(sheet_name)
 
     # 1. Gửi lệnh in

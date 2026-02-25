@@ -89,10 +89,14 @@ class NhapSXController extends Controller
                 'cong_doan' => 'required|string|max:10',
                 'nhan_vien_id' => 'required|string|max:20',
                 'dien_giai' => 'nullable|string|max:500',
-                'qc_rows' => 'required|json',
+                'qc_rows' => 'required|array',
+                'qc_rows.*.lenh_sx' => 'required|string',
+                'qc_rows.*.so_luong_dat' => 'required|string',
+                'qc_rows.*.so_luong_loi' => 'nullable|string',
+                'qc_rows.*.dien_giai' => 'nullable|string',
             ]);
 
-            $qcRows = json_decode($request->qc_rows, true);
+            $qcRows = $request->qc_rows;
 
             if (empty($qcRows)) {
                 return response()->json([
@@ -185,10 +189,13 @@ class NhapSXController extends Controller
                 'lenh_sx' => 'required|string|max:50',
                 'nhan_vien_id' => 'required|string|max:20',
                 'dien_giai' => 'nullable|string|max:500',
-                'ingredients_data' => 'required|json',
+                'ingredients_data' => 'required|array',
+                'ingredients_data.*.material_name' => 'required|string',
+                'ingredients_data.*.definition_unit' => 'required|string',
+                'ingredients_data.*.quantity' => 'nullable|string',
             ]);
 
-            $ingredientsData = json_decode($request->ingredients_data, true);
+            $ingredientsData = $request->ingredients_data;
 
             if (empty($ingredientsData)) {
                 return response()->json([

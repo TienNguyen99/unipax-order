@@ -96,15 +96,18 @@ class BaoCaoSXExport
         $sheet->setCellValue('F26', $log->nhan_vien_id);
         $sheet->setCellValue('F56', $log->nhan_vien_id);
 
-        // Fill data rows (rows 6-15 cho 10 items)
+        // Fill data rows (rows 6-20 cho max 15 items)
         $startRow = 6;
         $startRowDuplicate = 36; // Bảng thứ 2 bắt đầu từ row 36
+        $maxRows = 15;
+        $dataCount = count($allLogs);
+        
+        // Điền dữ liệu
         foreach ($allLogs as $index => $item) {
-            if ($index >= 15) break; // Max 15 rows
+            if ($index >= $maxRows) break; // Max 15 rows
             
             $currentRow = $startRow + $index;
             $currentRowDuplicate = $startRowDuplicate + $index;
-             // Điền cả bảng duplicate
             $stt = $index + 1;
 
             $sheet->setCellValue("A{$currentRow}", $stt);
@@ -126,6 +129,12 @@ class BaoCaoSXExport
             $sheet->setCellValue("I{$currentRowDuplicate}", $item->lenh_sx);
             $sheet->setCellValue("J{$currentRow}", $item->dien_giai);
             $sheet->setCellValue("J{$currentRowDuplicate}", $item->dien_giai);
+        }
+        
+        // Ẩn rows không có dữ liệu (từ count + 1 trở đi)
+        for ($i = $dataCount; $i < $maxRows; $i++) {
+            $sheet->getRowDimension($startRow + $i)->setVisible(false);
+            $sheet->getRowDimension($startRowDuplicate + $i)->setVisible(false);
         }
     }
 
