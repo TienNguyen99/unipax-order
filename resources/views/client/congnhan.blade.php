@@ -1365,7 +1365,9 @@
                         `<div class='alert alert-info'>Đang lưu ${nhapData.ingredients.length} nguyên liệu...</div>`;
                 } else {
                     // Normal single submission
-                    payload = {...nhapData};
+                    payload = {
+                        ...nhapData
+                    };
                     delete payload.qc_rows;
                     delete payload.ingredients;
                     payload.khu_vuc = khuVuc;
