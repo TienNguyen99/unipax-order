@@ -26,13 +26,16 @@ return new class extends Migration
             $table->string('front_loi', 50)->nullable();
             $table->string('back_dat', 50)->nullable();
             $table->string('back_loi', 50)->nullable();
+            $table->string('makhac_dat', 50)->nullable();
+            $table->string('makhac_loi', 50)->nullable();
             $table->string('vi_tri', 100)->nullable();
-            $table->string('ngay', 50)->nullable();
+            $table->string('thang_chot', 50)->nullable();
             $table->text('ghi_chu')->nullable();
             $table->string('so_luong_nhan', 50)->nullable();
             $table->string('noi_giao', 255)->nullable();
             $table->string('ngay_xuat_kho', 50)->nullable();
             $table->string('so_luong_donhang', 50)->nullable();
+            $table->string('gia_cong', 100)->nullable();
             $table->timestamp('ngay_nhan')->useCurrent();
             $table->timestamps();
         });

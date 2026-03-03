@@ -28,6 +28,8 @@ Route::post('/print', [ExcelPrintController::class, 'print'])->name('excel.print
 Route::get('/print/approval', [ExcelPrintController::class, 'approvalList'])->name('print.approval');
 Route::post('/print/approve/{id}', [ExcelPrintController::class, 'approve'])->name('print.approve');
 Route::delete('/print/delete/{id}', [ExcelPrintController::class, 'deleteLog'])->name('print.delete');
+// Debug route
+Route::get('/print/test/{sheet?}', [ExcelPrintController::class, 'test'])->name('print.test');
 
 //
 
@@ -47,6 +49,20 @@ Route::post('/nhap-sx/{id}/print', [NhapSXController::class, 'checkAndPrint'])->
 // in trực tiếp sau khi công nhân nhập
 Route::post('/nhap-sx/{id}/print-direct', [NhapSXController::class, 'printDirect'])
     ->name('nhap-sx.print');
+
+// Phiếu Về Entry Routes - Nhập dữ liệu công nhân
+use App\Http\Controllers\PhieuVeEntryController;
+Route::get('/phieu-ve-entry', [PhieuVeEntryController::class, 'show'])->name('phieu-ve-entry.show');
+Route::post('/phieu-ve-entry/search', [PhieuVeEntryController::class, 'search'])->name('phieu-ve-entry.search');
+Route::post('/phieu-ve-entry/save', [PhieuVeEntryController::class, 'save'])->name('phieu-ve-entry.save');
+Route::post('/phieu-ve-entry/save-multiple', [PhieuVeEntryController::class, 'saveMultiple'])->name('phieu-ve-entry.save-multiple');
+Route::post('/phieu-ve-entry/add-to-cart', [PhieuVeEntryController::class, 'addToCart'])->name('phieu-ve-entry.add-to-cart');
+Route::post('/phieu-ve-entry/cart-count', [PhieuVeEntryController::class, 'getCartCount'])->name('phieu-ve-entry.cart-count');
+Route::post('/phieu-ve-entry/get-cart', [PhieuVeEntryController::class, 'getCart'])->name('phieu-ve-entry.get-cart');
+Route::post('/phieu-ve-entry/remove-from-cart', [PhieuVeEntryController::class, 'removeFromCart'])->name('phieu-ve-entry.remove-from-cart');
+Route::post('/phieu-ve-entry/update-cart-item', [PhieuVeEntryController::class, 'updateCartItem'])->name('phieu-ve-entry.update-cart-item');
+Route::post('/phieu-ve-entry/save-cart', [PhieuVeEntryController::class, 'saveCart'])->name('phieu-ve-entry.save-cart');
+Route::get('/phieu-ve-entry/export-cart', [PhieuVeEntryController::class, 'exportCart'])->name('phieu-ve-entry.export-cart');
 
 // Material Calculator Routes
 Route::get('/material-calculator', [MaterialCalculatorController::class, 'show'])

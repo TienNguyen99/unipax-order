@@ -6,6 +6,7 @@ use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\SkipsOnError;
 use Maatwebsite\Excel\Concerns\SkipsErrors;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class PhieuVeImport implements ToModel, WithHeadingRow, SkipsOnError
@@ -45,24 +46,28 @@ class PhieuVeImport implements ToModel, WithHeadingRow, SkipsOnError
 
             $phieuVe = new PhieuVe([
                 'export_date' => $convertExcelDate($row['export_date'] ?? ''),
+                'ma_hang' => trim($row['ma_hang'] ?? ''),
                 'phieu_ps' => trim($row['phieu_ps'] ?? ''),
                 'kich_thuoc' => trim($row['kich_thuoc'] ?? ''),
                 'mau_vai' => trim($row['mau_vai'] ?? ''),
                 'mau_logo' => trim($row['mau_logo'] ?? ''),
                 'ngay_nhan_panel' => $convertExcelDate($row['ngay_nhan_panel'] ?? ''),
                 'so_phieu' => trim($row['so_phieu'] ?? ''),
-                'ma_hang' => trim($row['ma_hang'] ?? ''),
+                'so_luong_donhang' => trim($row['so_luong_donhang'] ?? ''),
+                'so_luong_nhan' => trim($row['so_luong_nhan'] ?? ''),
+                'ngay_xuat_kho' => $convertExcelDate($row['ngay_xuat_kho'] ?? ''),
+                'makhac_dat' => trim($row['makhac_dat'] ?? ''),
+                'makhac_loi' => trim($row['makhac_loi'] ?? ''),
                 'front_dat' => trim($row['front_dat'] ?? ''),
                 'front_loi' => trim($row['front_loi'] ?? ''),
                 'back_dat' => trim($row['back_dat'] ?? ''),
                 'back_loi' => trim($row['back_loi'] ?? ''),
-                'vi_tri' => trim($row['vi_tri'] ?? ''),
-                'ngay' => $convertExcelDate($row['ngay'] ?? ''),
                 'ghi_chu' => trim($row['ghi_chu'] ?? ''),
-                'so_luong_nhan' => trim($row['so_luong_nhan'] ?? ''),
+                'vi_tri' => trim($row['vi_tri'] ?? ''),
+                'thang_chot' => $convertExcelDate($row['thang_chot'] ?? ''),
                 'noi_giao' => trim($row['noi_giao'] ?? ''),
-                'ngay_xuat_kho' => $convertExcelDate($row['ngay_xuat_kho'] ?? ''),
-                'so_luong_donhang' => trim($row['so_luong_donhang'] ?? ''),
+                'gia_cong' => trim($row['gia_cong'] ?? ''),
+                'ma_lenh' => trim($row['ma_lenh'] ?? ''),
                 'ngay_nhan' => now(),
             ]);
             
@@ -78,7 +83,7 @@ class PhieuVeImport implements ToModel, WithHeadingRow, SkipsOnError
                     'vi_tri' => trim($row['vi_tri'] ?? ''),
                     'error' => $saveError->getMessage()
                 ];
-                \Log::warning("PhieuVe save error at row {$this->rowNumber}: " . $saveError->getMessage());
+                Log::warning("PhieuVe save error at row {$this->rowNumber}: " . $saveError->getMessage());
             }
             
             return null; // Return null để não double insert
@@ -89,7 +94,7 @@ class PhieuVeImport implements ToModel, WithHeadingRow, SkipsOnError
                 'error' => $e->getMessage()
             ];
             
-            \Log::warning("PhieuVe import error at row {$this->rowNumber}: " . $e->getMessage());
+            Log::warning("PhieuVe import error at row {$this->rowNumber}: " . $e->getMessage());
             return null;
         }
     }
@@ -97,7 +102,7 @@ class PhieuVeImport implements ToModel, WithHeadingRow, SkipsOnError
     public function onError(Throwable $error)
     {
         // Log lỗi
-        \Log::error("PhieuVe import error: " . $error->getMessage());
+        Log::error("PhieuVe import error: " . $error->getMessage());
     }
 
     public function getImportStats()

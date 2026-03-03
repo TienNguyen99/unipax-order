@@ -56,19 +56,41 @@ class ExcelPrintController extends Controller
         $returnCode = 0;
 
         $cmd = "{$this->pythonPath} " . escapeshellarg($this->printScript) . " " . escapeshellarg($sheet);
-        exec($cmd, $output, $returnCode);
+        exec($cmd . " 2>&1", $output, $returnCode);  // Thêm 2>&1 để capture cả stderr
+
+        // Debug: Log output
+        \Log::info("Print Command: " . $cmd);
+        \Log::info("Return Code: " . $returnCode);
+        \Log::info("Output: " . print_r($output, true));
 
         if ($returnCode === 0) {
             $pdfPath = null;
             $successMsg = null;
+            $warningMsg = null;
+            $errorMsg = null;
 
             foreach ($output as $line) {
                 if (strpos($line, "PREVIEW::") === 0) {
                     $pdfPath = trim(str_replace("PREVIEW::", "", $line));
+                    // Normalize path cho Windows
+                    $pdfPath = str_replace('/', DIRECTORY_SEPARATOR, $pdfPath);
                 }
                 if (strpos($line, "SUCCESS::") === 0) {
                     $successMsg = trim(str_replace("SUCCESS::", "", $line));
                 }
+                // Xử lý cả WARNING
+                if (strpos($line, "WARNING::") === 0) {
+                    $warningMsg = trim(str_replace("WARNING::", "", $line));
+                }
+                // Xử lý ERROR
+                if (strpos($line, "ERROR::") === 0) {
+                    $errorMsg = trim(str_replace("ERROR::", "", $line));
+                }
+            }
+
+            // Kiểm tra error message trước
+            if ($errorMsg) {
+                return back()->with('error', $errorMsg);
             }
 
             if ($pdfPath && file_exists($pdfPath)) {
@@ -89,9 +111,28 @@ class ExcelPrintController extends Controller
                 ]);
             }
 
-            return back()->with('error', "Không tạo được preview sau khi in");
+            // Debug: Hiển thị thông tin nếu không tìm thấy PDF
+            $debugInfo = "PDF Path: " . ($pdfPath ?? 'NULL') . "\n";
+            $debugInfo .= "File exists: " . ($pdfPath ? (file_exists($pdfPath) ? 'YES' : 'NO') : 'N/A') . "\n";
+            $debugInfo .= "Success msg: " . ($successMsg ?? 'NULL') . "\n";
+            $debugInfo .= "Full output: " . implode("\n", $output);
+            
+            return back()->with('error', "Không tạo được preview sau khi in.\n\nDebug:\n" . $debugInfo);
         } else {
-            return back()->with('error', "Lỗi khi in: " . implode("\n", $output));
+            // Parse error message từ Python output
+            $errorMsg = null;
+            foreach ($output as $line) {
+                if (strpos($line, "ERROR::") === 0) {
+                    $errorMsg = trim(str_replace("ERROR::", "", $line));
+                    break;
+                }
+            }
+            
+            if ($errorMsg) {
+                return back()->with('error', $errorMsg);
+            }
+            
+            return back()->with('error', "Lỗi khi in:\n" . implode("\n", $output));
         }
     }
 
@@ -137,6 +178,28 @@ class ExcelPrintController extends Controller
         $log->delete();
         
         return back()->with('success', "Đã xóa lệnh {$sheetName}");
+    }
+
+    /**
+     * Test route để debug
+     */
+    public function test($sheet = "1")
+    {
+        $output = [];
+        $returnCode = 0;
+
+        $cmd = "{$this->pythonPath} " . escapeshellarg($this->printScript) . " " . escapeshellarg($sheet);
+        exec($cmd . " 2>&1", $output, $returnCode);
+
+        return response()->json([
+            'command' => $cmd,
+            'return_code' => $returnCode,
+            'output' => $output,
+            'python_path' => $this->pythonPath,
+            'script_path' => $this->printScript,
+            'base_path' => base_path(),
+            'public_path' => public_path(),
+        ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     }
 
     /**
