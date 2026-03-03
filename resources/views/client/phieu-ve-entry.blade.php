@@ -38,13 +38,14 @@
                                     <label for="phieu_ps">Tìm nhanh theo P/S, Mã Hàng, Vị Trí:</label>
                                     <div class="input-group">
                                         <input type="text" id="phieu_ps" class="form-control form-control-lg"
-                                            placeholder="Gõ để tìm... (Enter hoặc click kết quả)" 
-                                            autocomplete="off" autofocus>
+                                            placeholder="Gõ để tìm... (Enter hoặc click kết quả)" autocomplete="off"
+                                            autofocus>
                                         <button class="btn btn-primary" type="button" id="btn_search">
                                             <i class="fas fa-search"></i> Tìm
                                         </button>
                                     </div>
-                                    <small class="text-muted">💡 Gõ 2 ký tự để xem gợi ý. Nhấn Enter để tìm tất cả.</small>
+                                    <small class="text-muted">💡 Gõ 2 ký tự để xem gợi ý. Nhấn Enter để tìm tất
+                                        cả.</small>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -56,12 +57,12 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Quick suggestions -->
                         <div id="quick_suggestions" class="mt-2 d-none">
                             <div class="d-flex gap-2 flex-wrap" id="suggestions_container"></div>
                         </div>
-                        
+
                         <div id="search_error" class="alert alert-danger d-none mt-2"></div>
                         <div id="search_info" class="alert alert-info d-none mt-2"></div>
                     </div>
@@ -358,7 +359,7 @@
 
         #quick_suggestions .badge:hover {
             transform: translateY(-2px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         /* Search input focus */
@@ -477,7 +478,7 @@
                         displayResults(data.data);
                         showInfo(searchInfo, `✓ Tìm thấy ${data.count} ô`);
                         searchError.classList.add('d-none');
-                        
+
                         // Save to recent searches
                         saveRecentSearch(value);
                     } else {
@@ -498,14 +499,14 @@
         // Save recent search to localStorage
         function saveRecentSearch(keyword) {
             if (!keyword || keyword.length < 2) return;
-            
+
             // Remove if exists
             recentSearches = recentSearches.filter(s => s !== keyword);
             // Add to front
             recentSearches.unshift(keyword);
             // Keep only last 10
             recentSearches = recentSearches.slice(0, 10);
-            
+
             localStorage.setItem('recent_phieu_searches', JSON.stringify(recentSearches));
             displayRecentSuggestions();
         }
@@ -514,12 +515,12 @@
         function displayRecentSuggestions() {
             const container = document.getElementById('suggestions_container');
             const quickSuggestions = document.getElementById('quick_suggestions');
-            
+
             if (recentSearches.length === 0) {
                 quickSuggestions.classList.add('d-none');
                 return;
             }
-            
+
             container.innerHTML = '<small class="text-muted me-2">Gần đây:</small>';
             recentSearches.slice(0, 5).forEach(keyword => {
                 const badge = document.createElement('span');
@@ -532,7 +533,7 @@
                 };
                 container.appendChild(badge);
             });
-            
+
             quickSuggestions.classList.remove('d-none');
         }
 
@@ -542,7 +543,7 @@
                 alert('Chưa có lịch sử tìm kiếm');
                 return;
             }
-            
+
             const keyword = recentSearches[0];
             phieuPsInput.value = keyword;
             handleSearch(keyword);
@@ -824,13 +825,13 @@
                 const item = cart[phieuId];
                 const tr = document.createElement('tr');
                 tr.id = `cart_row_${phieuId}`;
-                
+
                 const isSpecial = isSpecialMaHang(item.ma_hang);
                 const makhacDisabled = isSpecial ? 'disabled' : '';
                 const frontBackDisabled = isSpecial ? '' : 'disabled';
                 const makhacPlaceholder = isSpecial ? 'Không áp dụng' : '';
                 const frontBackPlaceholder = isSpecial ? '' : 'Không áp dụng';
-                
+
                 tr.innerHTML = `
                 <td>${index}</td>
                 <td><strong>${item.phieu_ps}</strong></td>
