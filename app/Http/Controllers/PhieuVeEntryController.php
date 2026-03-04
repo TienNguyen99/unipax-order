@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PhieuVe;
+use App\Models\PhieuXuatKho;
+use App\Models\PhieuXuatKhoChiTiet;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\PhieuVeExport;
 
@@ -376,6 +379,40 @@ class PhieuVeEntryController extends Controller
     }
 
     /**
+     * Lấy danh sách phiếu xuất kho chưa hoàn thành (để thêm items vào)
+     */
+    public function getAvailablePhieuXuatKho()
+    {
+        try {
+            $phieus = PhieuXuatKho::with('chiTiet')
+                ->whereIn('trang_thai', ['draft', 'confirmed'])
+                ->orderBy('created_at', 'desc')
+                ->limit(50)
+                ->get()
+                ->map(function($phieu) {
+                    return [
+                        'id' => $phieu->id,
+                        'ma_phieu' => $phieu->ma_phieu,
+                        'ngay_xuat' => $phieu->ngay_xuat,
+                        'trang_thai' => $phieu->trang_thai,
+                        'tong_so_items' => $phieu->tong_so_items,
+                        'current_items_count' => $phieu->chiTiet->count(),
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => $phieus
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Cập nhật dữ liệu trong giỏ hàng
      */
     public function updateCartItem(Request $request)
@@ -416,6 +453,8 @@ class PhieuVeEntryController extends Controller
 
     /**
      * Lưu tất cả phiếu trong giỏ vào database
+     * Tạo phiếu xuất kho và cập nhật phiếu về
+     * Hoặc thêm vào phiếu xuất kho đã có
      */
     public function saveCart(Request $request)
     {
@@ -434,13 +473,50 @@ class PhieuVeEntryController extends Controller
 
             DB::beginTransaction();
 
+            // 1. Kiểm tra xem có chọn phiếu xuất kho đã có không
+            $existingPhieuId = $request->input('phieu_xuat_kho_id');
+            
+            if ($existingPhieuId) {
+                // Thêm vào phiếu đã có
+                $phieuXuatKho = PhieuXuatKho::findOrFail($existingPhieuId);
+                
+                // Kiểm tra trạng thái
+                if (!in_array($phieuXuatKho->trang_thai, ['draft', 'confirmed'])) {
+                    DB::rollBack();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Phiếu xuất kho đã hoàn thành hoặc bị hủy, không thể thêm items'
+                    ]);
+                }
+            } else {
+                // Tạo phiếu xuất kho mới
+                $phieuXuatKho = PhieuXuatKho::create([
+                    'ma_phieu' => PhieuXuatKho::generateMaPhieu(),
+                    'user_id' => Auth::id(),
+                    'ngay_xuat' => now()->toDateString(),
+                    'trang_thai' => 'confirmed',
+                    'tong_so_items' => count($cart),
+                    'ghi_chu' => $request->input('ghi_chu_phieu'),
+                ]);
+            }
+
+            // 2. Lưu từng item và cập nhật phiếu về
             foreach ($cart as $phieuId => $data) {
                 try {
                     $phieuVe = PhieuVe::findOrFail($phieuId);
                     
                     // Validate dữ liệu dựa trên ma_hang
                     $validatedData = $this->validateDataByMaHang($data, $phieuVe->ma_hang);
+                    
+                    // Cập nhật phiếu về
                     $phieuVe->update($validatedData);
+                    
+                    // Tạo chi tiết phiếu xuất kho (snapshot)
+                    PhieuXuatKhoChiTiet::createFromPhieuVe(
+                        $phieuXuatKho->id,
+                        $phieuVe,
+                        $validatedData
+                    );
                     
                     $savedCount++;
                 } catch (\Exception $e) {
@@ -448,15 +524,29 @@ class PhieuVeEntryController extends Controller
                 }
             }
 
+            // 3. Cập nhật tổng số items trong phiếu xuất kho
+            if ($existingPhieuId) {
+                // Nếu append vào phiếu có sẵn, cập nhật tổng số items
+                $phieuXuatKho->tong_so_items = $phieuXuatKho->chiTiet()->count();
+                $phieuXuatKho->save();
+            }
+
             DB::commit();
 
             // Xóa giỏ sau khi lưu
             session()->forget('phieu_ve_cart');
 
+            $actionMessage = $existingPhieuId 
+                ? "Đã thêm $savedCount items vào phiếu xuất kho: {$phieuXuatKho->ma_phieu}"
+                : "Đã lưu $savedCount phiếu vào phiếu xuất kho mới: {$phieuXuatKho->ma_phieu}";
+
             return response()->json([
                 'success' => true,
-                'message' => "Đã lưu $savedCount phiếu",
+                'message' => $actionMessage,
                 'saved_count' => $savedCount,
+                'ma_phieu' => $phieuXuatKho->ma_phieu,
+                'phieu_xuat_kho_id' => $phieuXuatKho->id,
+                'is_append' => (bool)$existingPhieuId,
                 'errors' => $errors
             ]);
         } catch (\Exception $e) {
@@ -488,6 +578,280 @@ class PhieuVeEntryController extends Controller
             new \App\Exports\PhieuVeExport($ids),
             'phieu_ve_' . date('Y-m-d_His') . '.xlsx'
         );
+    }
+
+    /**
+     * Danh sách phiếu xuất kho
+     */
+    public function listPhieuXuatKho(Request $request)
+    {
+        $query = PhieuXuatKho::with(['user', 'chiTiet'])
+            ->orderBy('created_at', 'desc');
+
+        // Lọc theo ngày
+        if ($request->has('ngay_xuat')) {
+            $query->whereDate('ngay_xuat', $request->ngay_xuat);
+        }
+
+        // Lọc theo trạng thái
+        if ($request->has('trang_thai')) {
+            $query->where('trang_thai', $request->trang_thai);
+        }
+
+        // Lọc theo user
+        if ($request->has('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        $phieuXuatKhos = $query->paginate(20);
+
+        return view('client.phieu-xuat-kho-list', [
+            'phieuXuatKhos' => $phieuXuatKhos
+        ]);
+    }
+
+    /**
+     * Chi tiết phiếu xuất kho
+     */
+    public function viewPhieuXuatKho($id)
+    {
+        $phieuXuatKho = PhieuXuatKho::with(['user', 'chiTiet.phieuVe'])
+            ->findOrFail($id);
+
+        return view('client.phieu-xuat-kho-detail', [
+            'phieuXuatKho' => $phieuXuatKho
+        ]);
+    }
+
+    /**
+     * In/Xuất PDF phiếu xuất kho
+     */
+    public function printPhieuXuatKho($id)
+    {
+        $phieuXuatKho = PhieuXuatKho::with(['user', 'chiTiet'])
+            ->findOrFail($id);
+
+        // Collect phieu_ve IDs from chi tiết
+        $phieuVeIds = $phieuXuatKho->chiTiet->pluck('phieu_ve_id')->toArray();
+
+        return Excel::download(
+            new \App\Exports\PhieuVeExport($phieuVeIds),
+            $phieuXuatKho->ma_phieu . '_' . date('Y-m-d_His') . '.xlsx'
+        );
+    }
+
+    /**
+     * Cập nhật trạng thái phiếu xuất kho
+     */
+    public function updateStatusPhieuXuatKho(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'trang_thai' => 'required|in:draft,confirmed,completed,cancelled'
+            ]);
+
+            $phieuXuatKho = PhieuXuatKho::findOrFail($id);
+            $phieuXuatKho->update([
+                'trang_thai' => $validated['trang_thai']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã cập nhật trạng thái'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Cập nhật item trong phiếu xuất kho
+     */
+    public function updatePhieuXuatKhoItem(Request $request, $itemId)
+    {
+        try {
+            $item = PhieuXuatKhoChiTiet::findOrFail($itemId);
+            $phieuXuatKho = $item->phieuXuatKho;
+
+            // Kiểm tra trạng thái phiếu
+            if (!in_array($phieuXuatKho->trang_thai, ['draft', 'confirmed'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể chỉnh sửa phiếu đã hoàn thành hoặc đã hủy'
+                ], 403);
+            }
+
+            // Validate dữ liệu
+            $validated = $request->validate([
+                'makhac_dat' => 'nullable|string|max:50',
+                'makhac_loi' => 'nullable|string|max:50',
+                'front_dat' => 'nullable|string|max:50',
+                'front_loi' => 'nullable|string|max:50',
+                'back_dat' => 'nullable|string|max:50',
+                'back_loi' => 'nullable|string|max:50',
+                'vi_tri' => 'nullable|string|max:100',
+                'ghi_chu' => 'nullable|string',
+            ]);
+
+            DB::beginTransaction();
+
+            // Cập nhật item trong phiếu xuất kho
+            $item->update($validated);
+
+            // Cập nhật phiếu về tương ứng (nếu có)
+            if ($item->phieu_ve_id) {
+                $phieuVe = PhieuVe::find($item->phieu_ve_id);
+                if ($phieuVe) {
+                    $phieuVe->update($validated);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã cập nhật item',
+                'item' => $item->fresh()
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Xóa item khỏi phiếu xuất kho
+     */
+    public function deletePhieuXuatKhoItem($itemId)
+    {
+        try {
+            $item = PhieuXuatKhoChiTiet::findOrFail($itemId);
+            $phieuXuatKho = $item->phieuXuatKho;
+
+            // Kiểm tra trạng thái phiếu
+            if (!in_array($phieuXuatKho->trang_thai, ['draft', 'confirmed'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa item từ phiếu đã hoàn thành hoặc đã hủy'
+                ], 403);
+            }
+
+            DB::beginTransaction();
+
+            // Xóa item
+            $item->delete();
+
+            // Cập nhật tổng số items
+            $phieuXuatKho->tong_so_items = $phieuXuatKho->chiTiet()->count();
+            $phieuXuatKho->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đã xóa item',
+                'new_total' => $phieuXuatKho->tong_so_items
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Thêm items vào phiếu xuất kho đã có
+     */
+    public function addItemsToPhieuXuatKho(Request $request, $id)
+    {
+        try {
+            $phieuXuatKho = PhieuXuatKho::findOrFail($id);
+
+            // Kiểm tra trạng thái phiếu
+            if (!in_array($phieuXuatKho->trang_thai, ['draft', 'confirmed'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể thêm item vào phiếu đã hoàn thành hoặc đã hủy'
+                ], 403);
+            }
+
+            $phieuVeIds = $request->input('phieu_ve_ids', []);
+
+            if (empty($phieuVeIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Chưa chọn phiếu nào'
+                ]);
+            }
+
+            DB::beginTransaction();
+
+            $addedCount = 0;
+            $errors = [];
+
+            foreach ($phieuVeIds as $phieuVeId) {
+                try {
+                    $phieuVe = PhieuVe::findOrFail($phieuVeId);
+
+                    // Tạo chi tiết phiếu xuất kho (cho phép trùng)
+                    PhieuXuatKhoChiTiet::create([
+                        'phieu_xuat_kho_id' => $phieuXuatKho->id,
+                        'phieu_ve_id' => $phieuVe->id,
+                        'phieu_ps' => $phieuVe->phieu_ps,
+                        'ma_hang' => $phieuVe->ma_hang,
+                        'ma_lenh' => $phieuVe->ma_lenh,
+                        'kich_thuoc' => $phieuVe->kich_thuoc,
+                        'vi_tri' => $phieuVe->vi_tri,
+                        'so_luong_donhang' => $phieuVe->so_luong_donhang,
+                        'so_luong_nhan' => $phieuVe->so_luong_nhan,
+                        'makhac_dat' => $phieuVe->makhac_dat,
+                        'makhac_loi' => $phieuVe->makhac_loi,
+                        'front_dat' => $phieuVe->front_dat,
+                        'front_loi' => $phieuVe->front_loi,
+                        'back_dat' => $phieuVe->back_dat,
+                        'back_loi' => $phieuVe->back_loi,
+                        'ghi_chu' => $phieuVe->ghi_chu,
+                    ]);
+
+                    $addedCount++;
+                } catch (\Exception $e) {
+                    $errors[] = "Phiếu ID {$phieuVeId}: " . $e->getMessage();
+                }
+            }
+
+            // Cập nhật tổng số items
+            $phieuXuatKho->tong_so_items = $phieuXuatKho->chiTiet()->count();
+            $phieuXuatKho->save();
+
+            DB::commit();
+
+            $message = "Đã thêm {$addedCount} item vào phiếu";
+            if (!empty($errors)) {
+                $message .= ". Lỗi: " . implode(', ', $errors);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'added_count' => $addedCount,
+                'errors' => $errors,
+                'new_total' => $phieuXuatKho->tong_so_items
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
 

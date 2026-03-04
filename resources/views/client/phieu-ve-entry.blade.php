@@ -11,15 +11,16 @@
 </head>
 
 <body class="bg-light">
-    <div class="container-fluid mt-4">
+    <div class="container-fluid mt-4 fade-in">
         <div class="row">
             <div class="col-md-12">
                 <!-- Top Bar with Cart Button -->
-                <div class="mb-3 d-flex justify-content-between align-items-center">
-                    <h2 class="mb-0">📋 Nhập Dữ Liệu Phiếu Về</h2>
-                    <button type="button" class="btn btn-info btn-lg position-relative" id="btn_open_cart">
+                <div class="mb-3 d-flex justify-content-between align-items-center animate-slide-down">
+                    <h2 class="mb-0 text-gradient">📋 Nhập Dữ Liệu Phiếu Về</h2>
+                    <button type="button" class="btn btn-info btn-lg position-relative modern-btn" id="btn_open_cart">
                         <i class="fas fa-box"></i> Phiếu Xuất Kho
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                        <span
+                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger pulse"
                             id="cart_count">
                             0
                         </span>
@@ -27,20 +28,21 @@
                 </div>
 
                 <!-- Search Section -->
-                <div class="card mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">🔍 Tìm Kiếm Phiếu</h5>
+                <div class="card mb-4 modern-card">
+                    <div class="card-header bg-primary text-white modern-card-header">
+                        <h5 class="mb-0"><i class="fas fa-search me-2"></i>Tìm Kiếm Phiếu</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body modern-card-body">
                         <div class="row">
                             <div class="col-md-8">
                                 <div class="form-group">
                                     <label for="phieu_ps">Tìm nhanh theo P/S, Mã Hàng, Vị Trí:</label>
-                                    <div class="input-group">
-                                        <input type="text" id="phieu_ps" class="form-control form-control-lg"
+                                    <div class="input-group modern-input-group">
+                                        <input type="text" id="phieu_ps"
+                                            class="form-control form-control-lg modern-input"
                                             placeholder="Gõ để tìm... (Enter hoặc click kết quả)" autocomplete="off"
                                             autofocus>
-                                        <button class="btn btn-primary" type="button" id="btn_search">
+                                        <button class="btn btn-primary modern-btn" type="button" id="btn_search">
                                             <i class="fas fa-search"></i> Tìm
                                         </button>
                                     </div>
@@ -51,7 +53,8 @@
                             <div class="col-md-4">
                                 <label>&nbsp;</label>
                                 <div class="d-grid gap-2">
-                                    <button class="btn btn-outline-secondary" type="button" id="btn_show_recent">
+                                    <button class="btn btn-outline-secondary modern-btn" type="button"
+                                        id="btn_show_recent">
                                         <i class="fas fa-history"></i> Phiếu gần đây
                                     </button>
                                 </div>
@@ -69,13 +72,14 @@
                 </div>
 
                 <!-- Results Section -->
-                <div id="results_section" class="card d-none">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">📊 Danh Sách - <span id="results_count">0</span> ô</h5>
+                <div id="results_section" class="card d-none modern-card">
+                    <div class="card-header bg-success text-white modern-card-header">
+                        <h5 class="mb-0"><i class="fas fa-list me-2"></i>Danh Sách - <span id="results_count">0</span>
+                            ô</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body modern-card-body">
                         <div class="table-responsive">
-                            <table class="table table-hover table-bordered table-sm" id="phieu_ve_table">
+                            <table class="table table-hover table-bordered table-sm modern-table" id="phieu_ve_table">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Phiếu PS</th>
@@ -96,11 +100,11 @@
 
                 <!-- Edit Modal -->
                 <div class="modal fade" id="editModal" tabindex="-1">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header bg-warning">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content modern-modal">
+                            <div class="modal-header bg-warning modern-modal-header">
                                 <h5 class="modal-title">
-                                    ✏️ Nhập Dữ Liệu - <span id="modal_phieu_ps"></span>
+                                    <i class="fas fa-edit me-2"></i>Nhập Dữ Liệu - <span id="modal_phieu_ps"></span>
                                 </h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                             </div>
@@ -205,11 +209,11 @@
                                     <div id="form_success" class="alert alert-success d-none"></div>
                                 </form>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                    Hủy
+                            <div class="modal-footer modern-modal-footer">
+                                <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-1"></i>Hủy
                                 </button>
-                                <button type="button" class="btn btn-warning" id="btn_save_form">
+                                <button type="button" class="btn btn-warning modern-btn" id="btn_save_form">
                                     <i class="fas fa-save"></i> Lưu
                                 </button>
                             </div>
@@ -219,11 +223,12 @@
 
                 <!-- Cart Modal -->
                 <div class="modal fade" id="cartModal" tabindex="-1">
-                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-                        <div class="modal-content">
-                            <div class="modal-header bg-info text-white">
+                    <div class="modal-dialog modal-xl modal-dialog-scrollable modal-dialog-centered">
+                        <div class="modal-content modern-modal">
+                            <div class="modal-header bg-info text-white modern-modal-header">
                                 <h5 class="modal-title">
-                                    📦 Phiếu Xuất Kho - <span id="cart_total_items">0</span> ô
+                                    <i class="fas fa-box me-2"></i>Phiếu Xuất Kho - <span
+                                        id="cart_total_items">0</span> ô
                                 </h5>
                                 <button type="button" class="btn-close btn-close-white"
                                     data-bs-dismiss="modal"></button>
@@ -232,13 +237,49 @@
                                 <div id="cart_alert_error" class="alert alert-danger d-none"></div>
                                 <div id="cart_alert_success" class="alert alert-success d-none"></div>
 
+                                <!-- Phiếu Selection Section -->
+                                <div class="card modern-card mb-3" id="phieu_selection_section">
+                                    <div class="card-body p-3">
+                                        <div class="row align-items-end">
+                                            <div class="col-md-8">
+                                                <label class="form-label fw-bold">
+                                                    <i class="fas fa-search me-1"></i>Mã Phiếu Xuất Kho (tùy chọn):
+                                                </label>
+                                                <input type="text" class="form-control modern-input"
+                                                    id="search_phieu_xuat_kho"
+                                                    placeholder="Nhập mã phiếu để thêm vào (VD: PXK-20260303-0001), hoặc để trống để tạo mới"
+                                                    autocomplete="off">
+                                                <input type="hidden" id="selected_phieu_id">
+                                                <small class="text-muted">💡 Để trống để tạo phiếu mới, hoặc nhập mã để
+                                                    thêm vào phiếu có sẵn</small>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="alert alert-success mb-0 py-2" id="selected_phieu_info"
+                                                    style="display: none;">
+                                                    <small>
+                                                        <i class="fas fa-check-circle me-1"></i><strong>Tìm
+                                                            thấy:</strong><br>
+                                                        <span id="info_ma_phieu">-</span> (<span
+                                                            id="info_so_items">0</span> items)
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="search_suggestions" class="mt-2" style="display: none;">
+                                            <small class="text-muted">Gợi ý:</small>
+                                            <div id="suggestions_list" class="d-flex gap-2 flex-wrap mt-1"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div id="cart_empty_msg" class="alert alert-info">
                                     <i class="fas fa-box"></i> Phiếu xuất kho trống
                                 </div>
 
                                 <div id="cart_container" class="d-none">
-                                    <div class="table-responsive" style="max-height: 60vh; overflow-y: auto;">
-                                        <table class="table table-hover table-bordered" id="cart_table">
+                                    <div class="table-responsive modern-scroll"
+                                        style="max-height: 60vh; overflow-y: auto;">
+                                        <table class="table table-hover table-bordered modern-table" id="cart_table">
                                             <thead class="table-light sticky-top">
                                                 <tr>
                                                     <th width="50">STT</th>
@@ -262,17 +303,17 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                    Đóng
+                            <div class="modal-footer modern-modal-footer">
+                                <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">
+                                    <i class="fas fa-times me-1"></i>Đóng
                                 </button>
-                                <button type="button" class="btn btn-danger" id="btn_clear_cart">
+                                <button type="button" class="btn btn-danger modern-btn" id="btn_clear_cart">
                                     <i class="fas fa-trash"></i> Xóa Hết
                                 </button>
-                                <a href="#" id="btn_export_cart" class="btn btn-info" download>
+                                <a href="#" id="btn_export_cart" class="btn btn-info modern-btn" download>
                                     <i class="fas fa-file-excel"></i> Xuất Excel
                                 </a>
-                                <button type="button" class="btn btn-success" id="btn_save_cart">
+                                <button type="button" class="btn btn-success modern-btn" id="btn_save_cart">
                                     <i class="fas fa-save"></i> Lưu Phiếu
                                 </button>
                             </div>
@@ -284,6 +325,256 @@
     </div>
 
     <style>
+        /* ============ MODERN ANIMATIONS ============ */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .animate-slide-down {
+            animation: slideDown 0.5s ease-out;
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* ============ MODERN CARDS ============ */
+        .modern-card {
+            border-radius: 16px !important;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modern-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .modern-card-header {
+            border-radius: 16px 16px 0 0 !important;
+            border: none;
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+        }
+
+        .modern-card-body {
+            padding: 1.5rem;
+        }
+
+        /* ============ MODERN BUTTONS ============ */
+        .modern-btn {
+            border-radius: 12px !important;
+            padding: 0.625rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .modern-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .modern-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-add-shipment {
+            border-radius: 8px !important;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add-shipment:hover {
+            transform: scale(1.05);
+        }
+
+        /* ============ MODERN INPUTS ============ */
+        .modern-input {
+            border-radius: 12px !important;
+            border: 2px solid #e0e0e0;
+            padding: 0.75rem 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .modern-input:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .modern-input-group {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .modern-input-group .form-control {
+            border-right: none;
+        }
+
+        .modern-input-group .btn {
+            border-radius: 0 12px 12px 0 !important;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 10px !important;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+        }
+
+        /* ============ MODERN TABLES ============ */
+        .modern-table {
+            border-radius: 12px;
+            overflow: hidden;
+            border: none;
+        }
+
+        .modern-table thead {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .modern-table thead th {
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .modern-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .modern-table tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .modern-table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #f0f0f0;
+        }
+
+        /* ============ MODERN MODALS ============ */
+        .modern-modal {
+            border-radius: 20px !important;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modern-modal-header {
+            border-radius: 20px 20px 0 0 !important;
+            border: none;
+            padding: 1.5rem 2rem;
+        }
+
+        .modern-modal-footer {
+            border: none;
+            padding: 1.5rem 2rem;
+            background-color: #f8f9fa;
+        }
+
+        .modal.fade .modal-dialog {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ============ MODERN BADGES ============ */
+        .badge {
+            padding: 6px 14px;
+            font-weight: 500;
+            border-radius: 8px !important;
+            transition: all 0.3s ease;
+        }
+
+        /* ============ MODERN ALERTS ============ */
+        .alert {
+            border-radius: 12px !important;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        /* ============ MODERN SCROLL ============ */
+        .modern-scroll::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        .modern-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modern-scroll::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .modern-scroll::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* ============ TEXT GRADIENT ============ */
+        .text-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+
+        /* ============ LEGACY STYLES ============ */
         .info-group {
             margin-bottom: 10px;
         }
@@ -296,11 +587,6 @@
 
         .table-hover tbody tr:hover {
             background-color: #f5f5f5;
-        }
-
-        .badge {
-            padding: 5px 10px;
-            font-weight: normal;
         }
 
         /* Mobile optimizations */
@@ -352,20 +638,37 @@
         /* Quick suggestions styling */
         #quick_suggestions .badge {
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             font-size: 14px;
-            padding: 8px 12px;
+            padding: 10px 16px;
+            border-radius: 20px !important;
         }
 
         #quick_suggestions .badge:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        /* Search input focus */
-        #phieu_ps:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        #quick_suggestions .badge:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        /* Phieu search suggestions */
+        #suggestions_list .badge {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            padding: 8px 14px;
+            border-radius: 20px !important;
+        }
+
+        #suggestions_list .badge:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        #suggestions_list .badge:active {
+            transform: translateY(-1px) scale(1.02);
         }
     </style>
     </div>
@@ -553,9 +856,11 @@
             phieuVeTbody.innerHTML = '';
             resultsCount.textContent = data.length;
 
-            data.forEach((row) => {
+            data.forEach((row, index) => {
                 const tr = document.createElement('tr');
                 tr.id = `row_${row.id}`;
+                tr.style.opacity = '0';
+                tr.style.transform = 'translateY(10px)';
                 tr.innerHTML = `
                 <td><strong>${row.phieu_ps}</strong></td>
                 <td>${row.ma_hang || '-'}</td>
@@ -563,15 +868,23 @@
                 <td>${row.so_luong_donhang || '-'}</td>
                 <td><span class="badge bg-info">${row.vi_tri || '-'}</span></td>
                 <td>
-                    <button class="btn btn-sm btn-success btn-add-shipment" data-phieu-id="${row.id}" title="Thêm vào phiếu xuất kho">
+                    <button class="btn btn-sm btn-success btn-add-shipment modern-btn" data-phieu-id="${row.id}" title="Thêm vào phiếu xuất kho">
                         <i class="fas fa-plus"></i> Thêm
                     </button>
                 </td>
             `;
                 phieuVeTbody.appendChild(tr);
+
+                // Smooth fade-in animation
+                setTimeout(() => {
+                    tr.style.transition = 'all 0.4s ease';
+                    tr.style.opacity = '1';
+                    tr.style.transform = 'translateY(0)';
+                }, index * 50);
             });
 
             resultsSection.classList.remove('d-none');
+            resultsSection.style.animation = 'fadeIn 0.5s ease-out';
 
             // Add event listeners for add buttons
             document.querySelectorAll('.btn-add-shipment').forEach(btn => {
@@ -634,17 +947,32 @@
 
         function showError(element, message) {
             element.textContent = message;
+            element.style.opacity = '0';
             element.classList.remove('d-none');
+            setTimeout(() => {
+                element.style.transition = 'opacity 0.4s ease';
+                element.style.opacity = '1';
+            }, 10);
         }
 
         function showInfo(element, message) {
             element.textContent = message;
+            element.style.opacity = '0';
             element.classList.remove('d-none');
+            setTimeout(() => {
+                element.style.transition = 'opacity 0.4s ease';
+                element.style.opacity = '1';
+            }, 10);
         }
 
         function showSuccess(element, message) {
             element.textContent = message;
+            element.style.opacity = '0';
             element.classList.remove('d-none');
+            setTimeout(() => {
+                element.style.transition = 'opacity 0.4s ease';
+                element.style.opacity = '1';
+            }, 10);
         }
 
         function updateCheckAllState() {
@@ -671,10 +999,15 @@
                 .then(data => {
                     if (data.success) {
                         updateCartCount();
-                        // Highlight the row
+                        // Highlight the row with animation
                         const row = document.getElementById(`row_${phieuId}`);
                         if (row) {
+                            row.style.transition = 'all 0.4s ease';
                             row.classList.add('table-success');
+                            row.style.transform = 'scale(1.02)';
+                            setTimeout(() => {
+                                row.style.transform = 'scale(1)';
+                            }, 400);
                         }
                     } else {
                         alert(data.message || 'Không thể thêm');
@@ -781,9 +1114,158 @@
 
         // ========== CART MODAL FUNCTIONS ==========
 
+        let availablePhieuList = []; // Store available phieu for search
+
+        function loadAvailablePhieuXuatKho() {
+            fetch('{{ route('phieu-ve-entry.available-phieu') }}', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        availablePhieuList = data.data;
+                        console.log('Loaded phieu list:', availablePhieuList); // Debug
+                        showPhieuSuggestions();
+                        initSearchInput(); // Initialize search after loading data
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading available phieu:', error);
+                });
+        }
+
+        function showPhieuSuggestions() {
+            const suggestionsList = document.getElementById('suggestions_list');
+            const searchSuggestions = document.getElementById('search_suggestions');
+
+            if (availablePhieuList.length === 0) {
+                searchSuggestions.style.display = 'none';
+                return;
+            }
+
+            suggestionsList.innerHTML = '';
+            availablePhieuList.slice(0, 5).forEach(phieu => {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-primary';
+                badge.style.cursor = 'pointer';
+                const statusText = phieu.trang_thai === 'draft' ? 'Nháp' : 'OK';
+                badge.textContent =
+                    `${phieu.ma_phieu} (${phieu.current_items_count} items, ${statusText})`;
+                badge.onclick = () => selectPhieu(phieu);
+                suggestionsList.appendChild(badge);
+            });
+
+            searchSuggestions.style.display = 'block';
+        }
+
+        function selectPhieu(phieu) {
+            const searchInput = document.getElementById('search_phieu_xuat_kho');
+            const selectedPhieuId = document.getElementById('selected_phieu_id');
+            const selectedPhieuInfo = document.getElementById('selected_phieu_info');
+            const infoMaPhieu = document.getElementById('info_ma_phieu');
+            const infoSoItems = document.getElementById('info_so_items');
+
+            console.log('Selecting phieu:', phieu); // Debug
+
+            searchInput.value = phieu.ma_phieu;
+            selectedPhieuId.value = phieu.id;
+            infoMaPhieu.textContent = phieu.ma_phieu;
+            infoSoItems.textContent = phieu.current_items_count;
+            selectedPhieuInfo.style.display = 'block';
+        }
+
+        function initSearchInput() {
+            const searchInput = document.getElementById('search_phieu_xuat_kho');
+
+            console.log('Init search input:', searchInput); // Debug
+
+            if (!searchInput || searchInput.dataset.initialized) return;
+            searchInput.dataset.initialized = 'true';
+
+            searchInput.addEventListener('input', function() {
+                const searchValue = this.value.trim().toUpperCase();
+
+                // Get elements each time (they might not exist on first call)
+                const selectedPhieuId = document.getElementById('selected_phieu_id');
+                const selectedPhieuInfo = document.getElementById('selected_phieu_info');
+                const infoMaPhieu = document.getElementById('info_ma_phieu');
+                const infoSoItems = document.getElementById('info_so_items');
+
+                console.log('Search value:', searchValue); // Debug
+
+                if (!searchValue) {
+                    if (selectedPhieuId) selectedPhieuId.value = '';
+                    if (selectedPhieuInfo) selectedPhieuInfo.style.display = 'none';
+                    return;
+                }
+
+                // Search in available list (exact match or partial match)
+                let found = availablePhieuList.find(p => p.ma_phieu.toUpperCase() === searchValue);
+
+                // If exact match not found, try partial match
+                if (!found) {
+                    found = availablePhieuList.find(p => p.ma_phieu.toUpperCase().includes(
+                    searchValue));
+                }
+
+                if (found) {
+                    console.log('Found phieu:', found); // Debug
+                    console.log('Elements:', {
+                        selectedPhieuId,
+                        selectedPhieuInfo,
+                        infoMaPhieu,
+                        infoSoItems
+                    }); // Debug
+
+                    // Update hidden input
+                    if (selectedPhieuId) selectedPhieuId.value = found.id;
+
+                    // Update info display
+                    if (infoMaPhieu) infoMaPhieu.textContent = found.ma_phieu;
+                    if (infoSoItems) infoSoItems.textContent = found.current_items_count;
+
+                    // Show the info box
+                    if (selectedPhieuInfo) {
+                        selectedPhieuInfo.style.removeProperty('display');
+                        selectedPhieuInfo.style.display = 'block';
+                        selectedPhieuInfo.classList.remove('d-none');
+                        console.log('Info box display:', selectedPhieuInfo.style.display, 'Visible?',
+                            selectedPhieuInfo.offsetHeight > 0); // Debug
+                    } else {
+                        console.log('selectedPhieuInfo element not found!'); // Debug
+                    }
+                } else {
+                    console.log('Not found'); // Debug
+                    if (selectedPhieuId) selectedPhieuId.value = '';
+                    if (selectedPhieuInfo) selectedPhieuInfo.style.display = 'none';
+                }
+            });
+
+            searchInput.addEventListener('blur', function() {
+                // Small delay to allow click on suggestions
+                setTimeout(() => {
+                    const searchValue = this.value.trim();
+                    const selectedPhieuId = document.getElementById('selected_phieu_id');
+                    const selectedPhieuInfo = document.getElementById('selected_phieu_info');
+
+                    if (!searchValue) {
+                        if (selectedPhieuId) selectedPhieuId.value = '';
+                        if (selectedPhieuInfo) selectedPhieuInfo.style.display = 'none';
+                    }
+                }, 200);
+            });
+        }
+
         function loadAndShowCart() {
             btnOpenCart.disabled = true;
             btnOpenCart.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang tải...';
+
+            // Load available phieu xuat kho first
+            loadAvailablePhieuXuatKho();
 
             fetch('{{ route('phieu-ve-entry.get-cart') }}', {
                     method: 'POST',
@@ -820,11 +1302,14 @@
 
             cartTbody.innerHTML = '';
             let index = 1;
+            let animationDelay = 0;
 
             for (const phieuId in cart) {
                 const item = cart[phieuId];
                 const tr = document.createElement('tr');
                 tr.id = `cart_row_${phieuId}`;
+                tr.style.opacity = '0';
+                tr.style.transform = 'translateX(-10px)';
 
                 const isSpecial = isSpecialMaHang(item.ma_hang);
                 const makhacDisabled = isSpecial ? 'disabled' : '';
@@ -891,6 +1376,15 @@
                 </td>
             `;
                 cartTbody.appendChild(tr);
+
+                // Smooth fade-in from left
+                setTimeout(() => {
+                    tr.style.transition = 'all 0.4s ease';
+                    tr.style.opacity = '1';
+                    tr.style.transform = 'translateX(0)';
+                }, animationDelay);
+
+                animationDelay += 30;
                 index++;
             }
 
@@ -934,7 +1428,12 @@
                 .then(data => {
                     if (data.success) {
                         const row = document.getElementById(`cart_row_${phieuId}`);
-                        if (row) row.remove();
+                        if (row) {
+                            row.style.transition = 'all 0.3s ease';
+                            row.style.opacity = '0';
+                            row.style.transform = 'translateX(20px)';
+                            setTimeout(() => row.remove(), 300);
+                        }
                         updateCartCount();
                         showCartSuccess('Đã xóa khỏi giỏ hàng');
 
@@ -982,6 +1481,9 @@
             btnSaveCart.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...';
 
             Promise.all(promises).then(() => {
+                    // Get selected phieu xuat kho from hidden input
+                    const selectedPhieuId = document.getElementById('selected_phieu_id').value;
+
                     // Now save to database
                     return fetch('{{ route('phieu-ve-entry.save-cart') }}', {
                         method: 'POST',
@@ -990,7 +1492,9 @@
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
                                 .content
                         },
-                        body: JSON.stringify({})
+                        body: JSON.stringify({
+                            phieu_xuat_kho_id: selectedPhieuId || null
+                        })
                     }).then(r => r.json());
                 })
                 .then(data => {
