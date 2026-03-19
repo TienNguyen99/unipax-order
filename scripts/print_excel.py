@@ -18,19 +18,46 @@ try:
         excel = win32com.client.Dispatch("Excel.Application")
         excel.Visible = True
     
-    # Thử tìm workbook đã mở
-    wb = None
+    # Thử tìm workbook đã mở (ưu tiên LINK-LENHSANXUAT, fallback LENHSANXUAT-TEXENCO)
+    wb_link = None
+    wb_texenco = None
     for workbook in excel.Workbooks:
-        if workbook.Name == "LINK-LENHSANXUAT.xlsx":
-            wb = workbook
-            break
+        name_upper = workbook.Name.upper()
+        if name_upper.startswith("LINK-LENHSANXUAT"):
+            wb_link = workbook
+        elif name_upper.startswith("LENHSANXUAT-TEXENCO"):
+            wb_texenco = workbook
     
-    # Nếu chưa mở workbook, báo lỗi rõ ràng
-    if wb is None:
-        print("ERROR::Vui lòng mở file LINK-LENHSANXUAT.xlsx trong Excel trước khi in")
+    # Tìm sheet trong các workbook đã mở
+    wb = None
+    ws = None
+
+    # Ưu tiên 1: tìm trong LINK-LENHSANXUAT trước
+    if wb_link is not None:
+        try:
+            ws = wb_link.Sheets(sheet_name)
+            wb = wb_link
+        except:
+            pass
+
+    # Ưu tiên 2: nếu chưa tìm thấy, tìm trong LENHSANXUAT-TEXENCO
+    if ws is None and wb_texenco is not None:
+        try:
+            ws = wb_texenco.Sheets(sheet_name)
+            wb = wb_texenco
+        except:
+            pass
+
+    # Nếu không tìm thấy sheet ở cả 2 workbook
+    if ws is None:
+        if wb_link is None and wb_texenco is None:
+            print("ERROR::Vui lòng mở file LINK-LENHSANXUAT.xlsx hoặc LENHSANXUAT-TEXENCO.xlsx trong Excel trước khi in")
+        else:
+            opened = []
+            if wb_link: opened.append(wb_link.Name)
+            if wb_texenco: opened.append(wb_texenco.Name)
+            print(f"ERROR::Không tìm thấy sheet '{sheet_name}' trong {', '.join(opened)}")
         sys.exit(1)
-    
-    ws = wb.Sheets(sheet_name)
 
     # Đảm bảo Excel sẵn sàng
     excel.ScreenUpdating = False
