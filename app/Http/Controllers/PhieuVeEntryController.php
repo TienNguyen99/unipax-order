@@ -509,7 +509,10 @@ class PhieuVeEntryController extends Controller
                     $validatedData = $this->validateDataByMaHang($data, $phieuVe->ma_hang);
                     
                     // Cập nhật phiếu về
-                    $phieuVe->update($validatedData);
+                    $phieuVe->update(array_merge($validatedData, [
+                        'ngay_xuat_kho' => now()->format('d/m/Y'),
+                        'trang_thai_sx' => 'hoan_thanh'
+                    ]));
                     
                     // Tạo chi tiết phiếu xuất kho (snapshot)
                     PhieuXuatKhoChiTiet::createFromPhieuVe(

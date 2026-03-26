@@ -77,3 +77,26 @@ Route::delete('/phieu-xuat-kho/item/{itemId}/delete', [PhieuVeEntryController::c
 // Material Calculator Routes
 Route::get('/material-calculator', [MaterialCalculatorController::class, 'show'])
     ->name('material-calculator.show');
+
+// ─── Thêm vào routes/web.php ───────────────────────────────────────────────
+use App\Http\Controllers\SanXuatController;
+
+Route::prefix('san-xuat')->name('san-xuat.')->middleware(['web'])->group(function () {
+
+    // Dashboard tổng quan
+    Route::get('/dashboard', [SanXuatController::class, 'dashboard'])->name('dashboard');
+
+    // Quản lý phiếu PS
+    Route::get('/ps', [SanXuatController::class, 'psIndex'])->name('ps.index');
+    Route::get('/ps/export', [SanXuatController::class, 'psExport'])->name('ps.export');
+    Route::post('/ps/import', [SanXuatController::class, 'psImport'])->name('ps.import');
+    Route::post('/ps/{id}/status', [SanXuatController::class, 'psUpdateStatus'])->name('ps.status');
+
+    // QC đạt / lỗi
+    Route::get('/qc', [SanXuatController::class, 'qcIndex'])->name('qc.index');
+    Route::get('/qc/nhap', [SanXuatController::class, 'qcNhap'])->name('qc.nhap');
+
+    // Xuất kho
+    Route::get('/xuat-kho', [SanXuatController::class, 'xuatKhoIndex'])->name('xuat-kho.index');
+    Route::post('/xuat-kho/{id}', [SanXuatController::class, 'xuatKhoConfirm'])->name('xuat-kho.confirm');
+});
