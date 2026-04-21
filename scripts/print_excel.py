@@ -15,9 +15,10 @@ PRINTER_MAP = {
         "port": 9100,
     },
     "LENHSANXUAT-TEXENCO": {
-        "name": "\\\\192.168.1.81\\Canon LBP2900",
-        "ip": "192.168.1.81",
-        "port": None,
+        "name": "\\\\192.168.1.34\\HP LaserJet Professional M1212nf MFP",
+        "ip": "192.168.1.34",
+        "port": 9100,
+        "is_network": True,
     },
 }
 
@@ -50,47 +51,101 @@ def find_active_printer_name(excel, printer_keyword):
         pass
     return None
 
+def get_all_excel_instances():
+    """Lấy tất cả Excel instances đang chạy (hỗ trợ nhiều cửa sổ Excel)"""
+    instances = {}  # Hwnd -> Excel Application
+    
+    # Cách 1: GetActiveObject - lấy instance chính
+    try:
+        excel = win32com.client.GetActiveObject("Excel.Application")
+        instances[excel.Hwnd] = excel
+    except:
+        pass
+    
+    # Cách 2: Tìm qua ROT (Running Object Table) để lấy tất cả instances
+    try:
+        context = pythoncom.CreateBindCtx(0)
+        rot = pythoncom.GetRunningObjectTable(0)
+        enum = rot.EnumRunning()
+        
+        while True:
+            monikers = enum.Next(1)
+            if not monikers:
+                break
+            moniker = monikers[0]
+            try:
+                display_name = moniker.GetDisplayName(context, None)
+                if display_name and display_name.lower().endswith(('.xlsx', '.xls', '.xlsm', '.xlsb')):
+                    obj = rot.GetObject(moniker)
+                    dispatch = win32com.client.Dispatch(obj.QueryInterface(pythoncom.IID_IDispatch))
+                    try:
+                        app = dispatch.Application
+                        hwnd = app.Hwnd
+                        if hwnd not in instances:
+                            instances[hwnd] = app
+                    except:
+                        pass
+            except:
+                pass
+    except:
+        pass
+    
+    return list(instances.values())
+
 try:
     pythoncom.CoInitialize()
     
-    # Thử kết nối với Excel đang chạy, nếu không được thì mở mới
-    try:
-        excel = win32com.client.GetActiveObject("Excel.Application")
-    except:
-        # Excel chưa chạy, mở Excel mới
-        excel = win32com.client.Dispatch("Excel.Application")
-        excel.Visible = True
+    # Lấy tất cả Excel instances đang chạy
+    excel_instances = get_all_excel_instances()
     
-    # Thử tìm workbook đã mở (ưu tiên LINK-LENHSANXUAT, fallback LENHSANXUAT-TEXENCO)
+    if not excel_instances:
+        print("ERROR::Không tìm thấy Excel đang chạy. Vui lòng mở Excel trước.")
+        sys.exit(1)
+    
+    # Quét tất cả instances để tìm workbook
     wb_link = None
     wb_texenco = None
-    for workbook in excel.Workbooks:
-        name_upper = workbook.Name.upper()
-        if name_upper.startswith("LINK-LENHSANXUAT"):
-            wb_link = workbook
-        elif name_upper.startswith("LENHSANXUAT-TEXENCO"):
-            wb_texenco = workbook
+    excel_for_link = None
+    excel_for_texenco = None
+    
+    for excel_inst in excel_instances:
+        try:
+            for workbook in excel_inst.Workbooks:
+                name_upper = workbook.Name.upper()
+                if name_upper.startswith("LINK-LENHSANXUAT") and wb_link is None:
+                    wb_link = workbook
+                    excel_for_link = excel_inst
+                elif name_upper.startswith("LENHSANXUAT-TEXENCO") and wb_texenco is None:
+                    wb_texenco = workbook
+                    excel_for_texenco = excel_inst
+        except:
+            continue
+    
+    print(f"INFO::Tìm thấy {len(excel_instances)} Excel instance(s), LINK={'Có' if wb_link else 'Không'}, TEXENCO={'Có' if wb_texenco else 'Không'}")
     
     # Tìm sheet trong các workbook đã mở
     wb = None
     ws = None
-    source_wb_key = None  # Để xác định máy in
+    source_wb_key = None
+    excel = None  # Excel instance chứa sheet cần in
 
-    # Ưu tiên 1: tìm trong LINK-LENHSANXUAT trước
-    if wb_link is not None:
-        try:
-            ws = wb_link.Sheets(sheet_name)
-            wb = wb_link
-            source_wb_key = "LINK-LENHSANXUAT"
-        except:
-            pass
-
-    # Ưu tiên 2: nếu chưa tìm thấy, tìm trong LENHSANXUAT-TEXENCO
-    if ws is None and wb_texenco is not None:
+    # Ưu tiên 1: tìm trong LENHSANXUAT-TEXENCO trước
+    if wb_texenco is not None:
         try:
             ws = wb_texenco.Sheets(sheet_name)
             wb = wb_texenco
             source_wb_key = "LENHSANXUAT-TEXENCO"
+            excel = excel_for_texenco
+        except:
+            pass
+
+    # Ưu tiên 2: nếu chưa tìm thấy, tìm trong LINK-LENHSANXUAT
+    if ws is None and wb_link is not None:
+        try:
+            ws = wb_link.Sheets(sheet_name)
+            wb = wb_link
+            source_wb_key = "LINK-LENHSANXUAT"
+            excel = excel_for_link
         except:
             pass
 
@@ -100,9 +155,16 @@ try:
             print("ERROR::Vui lòng mở file LINK-LENHSANXUAT.xlsx hoặc LENHSANXUAT-TEXENCO.xlsx trong Excel trước khi in")
         else:
             opened = []
+            not_opened = []
             if wb_link: opened.append(wb_link.Name)
+            else: not_opened.append("LINK-LENHSANXUAT.xlsx")
             if wb_texenco: opened.append(wb_texenco.Name)
-            print(f"ERROR::Không tìm thấy sheet '{sheet_name}' trong {', '.join(opened)}")
+            else: not_opened.append("LENHSANXUAT-TEXENCO.xlsx")
+            
+            msg = f"Không tìm thấy sheet '{sheet_name}' trong {', '.join(opened)}"
+            if not_opened:
+                msg += f". Thử mở thêm {', '.join(not_opened)}?"
+            print(f"ERROR::{msg}")
         sys.exit(1)
 
     # Xác định máy in dựa trên workbook nguồn
@@ -136,16 +198,31 @@ try:
             except:
                 pass
 
-            # Tìm tên đầy đủ của máy in (với port "on NeXX:")
-            full_printer_name = find_active_printer_name(excel, printer_config["name"])
-            
-            if full_printer_name:
-                ws.PrintOut(Copies=1, ActivePrinter=full_printer_name)
-                print(f"SUCCESS::Đang in sheet {sheet_name} trên {printer_config['name']} chờ xíu . . .")
+            # Xác định tên máy in đầy đủ
+            if printer_config.get("is_network"):
+                # Network printer: thử trực tiếp UNC path với các port
+                full_printer_name = None
+                for port_id in range(20):
+                    try:
+                        test_name = f"{printer_config['name']} on Ne{port_id:02d}:"
+                        excel.ActivePrinter = test_name
+                        full_printer_name = test_name
+                        break
+                    except:
+                        continue
+                
+                if not full_printer_name:
+                    # Fallback: thử không có port
+                    full_printer_name = printer_config["name"]
             else:
-                # Fallback: thử in trực tiếp với tên máy in
-                ws.PrintOut(Copies=1, ActivePrinter=printer_config["name"])
-                print(f"SUCCESS::Đang in sheet {sheet_name} trên {printer_config['name']} chờ xíu . . .")
+                # Local printer: tìm qua tên
+                full_printer_name = find_active_printer_name(excel, printer_config["name"])
+                if not full_printer_name:
+                    full_printer_name = printer_config["name"]
+            
+            print(f"INFO::Sử dụng printer: {full_printer_name}")
+            ws.PrintOut(Copies=1, ActivePrinter=full_printer_name)
+            print(f"SUCCESS::Đang in sheet {sheet_name} trên {printer_config['name']} chờ xíu . . .")
             
             # Khôi phục máy in mặc định
             if original_printer:

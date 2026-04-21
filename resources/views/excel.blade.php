@@ -211,6 +211,7 @@
             width: 100%;
             height: 100%;
             backdrop-filter: blur(6px);
+            overflow-y: auto;
         }
 
         body.theme-noel .modal {
@@ -223,13 +224,15 @@
 
         .modal-content {
             background: rgba(255, 255, 255, 0.95);
-            margin: 4% auto;
-            padding: 25px 30px;
+            margin: 15% auto;
+            padding: 30px 35px;
             border-radius: 16px;
-            width: 85%;
-            max-width: 1100px;
+            width: auto;
+            max-width: 520px;
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
             color: #333;
+            overflow: visible;
+            text-align: center;
         }
 
         .modal-content h3 {
@@ -254,8 +257,7 @@
             background: rgba(255, 255, 255, 0.8);
             border-radius: 12px;
             padding: 15px;
-            max-height: 350px;
-            overflow-y: auto;
+            overflow: visible;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
         }
 
@@ -343,6 +345,145 @@
             border-radius: 10px;
             box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
         }
+
+        /* ==== Dropdown theo năm ==== */
+        .year-dropdown {
+            position: relative;
+            display: inline-block;
+            flex: 1 1 0;
+            min-width: 140px;
+        }
+
+        .year-dropdown-btn {
+            padding: 14px 24px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            color: #fff;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .year-dropdown-btn::after {
+            content: '▾';
+            font-size: 14px;
+            transition: transform 0.3s ease;
+        }
+
+        .year-dropdown:hover .year-dropdown-btn::after {
+            transform: rotate(180deg);
+        }
+
+        body.theme-noel .year-dropdown-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        body.theme-tet .year-dropdown-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .year-dropdown-btn:hover {
+            transform: translateY(-3px);
+            opacity: 0.95;
+        }
+
+        body.theme-noel .year-dropdown-btn:hover {
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        body.theme-tet .year-dropdown-btn:hover {
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+        }
+
+        .year-dropdown-content {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            min-width: 240px;
+            background: rgba(255, 255, 255, 0.97);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            z-index: 10;
+            padding: 10px 0;
+            padding-top: 6px;
+            transition: visibility 0s linear 0.35s, opacity 0.25s ease;
+        }
+
+        @keyframes dropdownFade {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        body.theme-noel .year-dropdown-content {
+            border: 1px solid #c3e0ef;
+        }
+
+        body.theme-tet .year-dropdown-content {
+            border: 1px solid #ffcccb;
+        }
+
+        .year-dropdown:hover .year-dropdown-content {
+            visibility: visible;
+            opacity: 1;
+            transition: visibility 0s linear 0s, opacity 0.25s ease;
+        }
+
+        .year-dropdown-content a {
+            display: block;
+            padding: 8px 18px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        body.theme-noel .year-dropdown-content a {
+            color: #0077b6;
+        }
+
+        body.theme-tet .year-dropdown-content a {
+            color: #d63031;
+        }
+
+        .year-dropdown-content a:hover {
+            background: rgba(0, 0, 0, 0.04);
+            padding-left: 24px;
+        }
+
+        body.theme-noel .year-dropdown-content a:hover {
+            color: #00a6c9;
+        }
+
+        body.theme-tet .year-dropdown-content a:hover {
+            color: #ff6b6b;
+        }
+
+        .online-links-wrapper {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 15px;
+        }
     </style>
 </head>
 
@@ -355,91 +496,66 @@
 
     <div id="particles-js"></div>
 
-    <div class="container">
-        @if (!empty($fileUrls) && count($fileUrls) > 0)
-            <button type="button" onclick="document.getElementById('fileModal').style.display='block'">
-                Lệnh sản xuất cũ
-            </button>
+    <!-- Modal nằm ngoài container -->
+    <div id="fileModal" class="modal" onclick="if(event.target.id==='fileModal'){this.style.display='none'}">
+        <div class="modal-content">
+            <h3 style="margin-bottom:20px;">
+                Chọn để tải
+            </h3>
 
-            <!-- <button type="button" onclick="window.location.href='{{ route('print.approval') }}'">
-                📋 Duyệt Lệnh
-            </button> -->
-
-            <div id="fileModal" class="modal" onclick="if(event.target.id==='fileModal'){this.style.display='none'}">
-                <div class="modal-content">
-                    <h3 style="margin-bottom:20px; text-align:center;">
-                        Chọn để tải
-                    </h3>
-
-                    @php
-                        $grouped = [];
-                        foreach ($fileUrls as $file) {
-                            preg_match('/(20\d{2})/', $file['name'], $match);
-                            $year = $match[1] ?? 'Khác';
-                            $grouped[$year][] = $file;
-                        }
-                        krsort($grouped);
-                    @endphp
-
-                    <div class="grid-container">
-                        @foreach ($grouped as $year => $files)
-                            <div class="grid-col">
-                                <div class="year-header">📁 {{ $year }}</div>
-                                <ul>
-                                    @foreach ($files as $file)
-                                        <li>• <a href="{{ $file['url'] }}" download>{{ $file['name'] }}</a></li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endforeach
-                        <div class="grid-col">
-                            <div class="year-header">🌐 Link Online</div>
-                            <ul>
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/ERLvdNC4tVJCgWblmzYCY_UBLeY-9B1rI2qOdEOXCMY7AQ?e=hlQm5q"
-                                        target="_blank">2025 Từ 0 - 999</a></li>
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/EbaocOYzzXxLncJAR5YUxhMBjAh3JxbHoBZtyxIrazoTYg?e=GjdP8K"
-                                        target="_blank">2025 Từ 1000-1982</a></li>
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/EfaqTeXH8EtNmzpWkLCmRdMBzaj7bfF2tKq92YeBE4PXGA?e=t4kP4v"
-                                        target="_blank">2025 Từ 2017-2999</a></li>
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/IQCn3GprQPWoTI8RSA2EEEX9AR4TB1CMqGQCi_P-uKCY3j8?e=lyskep"
-                                        target="_blank">2025 Từ 3000-3497</a></li>
-
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/IQBm_Alq6pkKQJUyzGvuG8XsAR2zSCfvsqmw6v01L3RAATw?e=Phdhdi"
-                                        target="_blank">2025 Từ 3512 - 3999</a></li>
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/IQCgdOW962jvQ60c6JnM3XexAXiCtePywcNh_Lotbbdubyw?e=l11zyj"
-                                        target="_blank">2025 Từ 4000 - 4700</a></li>
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/IQA4Pt5G8INQRan_HOwyuYJNAd34IvLDkIIMHo-80l7Nx2A?e=J2CW21"
-                                        target="_blank">2025 Từ 4700 - 5077</a></li>
-
-
-
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/EdrZO6-SkGBNq-aorfBftHgB1YhK_g97KsBob3_PD0dXUQ?e=0S0Fv4"
-                                        target="_blank">2024 Từ 2157 - 2999</a></li>
-
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/EWY_a4S9JAVAkhSqRKME9DwBBgnRm7T1mWYYt7FRTcPKzw?e=8mumah"
-                                        target="_blank">2024 Từ 3000 - 3964</a></li>
-                                <li>🧩 <a
-                                        href="https://1drv.ms/x/c/780111bcbe29311c/ETX7wcjH6llNgwIEmBtDEW0BdKwULN0QXS3_bAaPkAxRPw?e=8Ty57s"
-                                        target="_blank">2024 Từ 4000 - 5472</a></li>
-                            </ul>
-                        </div>
+            <div class="online-links-wrapper">
+                <!-- 2026 -->
+                <div class="year-dropdown">
+                    <button type="button" class="year-dropdown-btn">📅 2026</button>
+                    <div class="year-dropdown-content">
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/IQAHHBAQl_LnRaafwG68J_tsAf6ao5Q6f01YeY0V5pGjv3E?e=Q4558A"
+                            target="_blank">🧩 Từ 1 - 499</a>
                     </div>
-
-                    <button class="close-btn" onclick="document.getElementById('fileModal').style.display='none'">
-                        Đóng
-                    </button>
+                </div>
+                <!-- 2025 -->
+                <div class="year-dropdown">
+                    <button type="button" class="year-dropdown-btn">📅 2025</button>
+                    <div class="year-dropdown-content">
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/ERLvdNC4tVJCgWblmzYCY_UBLeY-9B1rI2qOdEOXCMY7AQ?e=hlQm5q"
+                            target="_blank">🧩 Từ 0 - 999</a>
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/EbaocOYzzXxLncJAR5YUxhMBjAh3JxbHoBZtyxIrazoTYg?e=GjdP8K"
+                            target="_blank">🧩 Từ 1000 - 1982</a>
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/EfaqTeXH8EtNmzpWkLCmRdMBzaj7bfF2tKq92YeBE4PXGA?e=t4kP4v"
+                            target="_blank">🧩 Từ 2017 - 2999</a>
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/IQCn3GprQPWoTI8RSA2EEEX9AR4TB1CMqGQCi_P-uKCY3j8?e=lyskep"
+                            target="_blank">🧩 Từ 3000 - 3497</a>
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/IQBm_Alq6pkKQJUyzGvuG8XsAR2zSCfvsqmw6v01L3RAATw?e=Phdhdi"
+                            target="_blank">🧩 Từ 3512 - 3999</a>
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/IQCgdOW962jvQ60c6JnM3XexAXiCtePywcNh_Lotbbdubyw?e=l11zyj"
+                            target="_blank">🧩 Từ 4000 - 4700</a>
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/IQA4Pt5G8INQRan_HOwyuYJNAd34IvLDkIIMHo-80l7Nx2A?e=J2CW21"
+                            target="_blank">🧩 Từ 4700 - 5077</a>
+                    </div>
+                </div>
+                <!-- 2024 -->
+                <div class="year-dropdown">
+                    <button type="button" class="year-dropdown-btn">📅 2024</button>
+                    <div class="year-dropdown-content">
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/EdrZO6-SkGBNq-aorfBftHgB1YhK_g97KsBob3_PD0dXUQ?e=0S0Fv4"
+                            target="_blank">🧩 Từ 2157 - 2999</a>
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/EWY_a4S9JAVAkhSqRKME9DwBBgnRm7T1mWYYt7FRTcPKzw?e=8mumah"
+                            target="_blank">🧩 Từ 3000 - 3964</a>
+                        <a href="https://1drv.ms/x/c/780111bcbe29311c/ETX7wcjH6llNgwIEmBtDEW0BdKwULN0QXS3_bAaPkAxRPw?e=8Ty57s"
+                            target="_blank">🧩 Từ 4000 - 5472</a>
+                    </div>
                 </div>
             </div>
-        @endif
+
+            <button class="close-btn" onclick="document.getElementById('fileModal').style.display='none'">
+                Đóng
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <button type="button" onclick="document.getElementById('fileModal').style.display='block'">
+            Lệnh sản xuất cũ
+        </button>
 
         <h2>NHẬP TÊN SHEET CẦN IN</h2>
 
